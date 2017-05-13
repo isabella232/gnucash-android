@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+ Copyright (c) 2014 Ngewi Fet <ngewif@gmail.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<gnc-v2
+     xmlns:gnc="http://www.gnucash.org/XML/gnc"
+     xmlns:act="http://www.gnucash.org/XML/act"
+     xmlns:book="http://www.gnucash.org/XML/book"
+     xmlns:cd="http://www.gnucash.org/XML/cd"
+     xmlns:cmdty="http://www.gnucash.org/XML/cmdty"
+     xmlns:price="http://www.gnucash.org/XML/price"
+     xmlns:slot="http://www.gnucash.org/XML/slot"
+     xmlns:split="http://www.gnucash.org/XML/split"
+     xmlns:sx="http://www.gnucash.org/XML/sx"
+     xmlns:trn="http://www.gnucash.org/XML/trn"
+     xmlns:ts="http://www.gnucash.org/XML/ts"
+     xmlns:fs="http://www.gnucash.org/XML/fs"
+     xmlns:bgt="http://www.gnucash.org/XML/bgt"
+     xmlns:recurrence="http://www.gnucash.org/XML/recurrence"
+     xmlns:lot="http://www.gnucash.org/XML/lot"
+     xmlns:addr="http://www.gnucash.org/XML/addr"
+     xmlns:owner="http://www.gnucash.org/XML/owner"
+     xmlns:billterm="http://www.gnucash.org/XML/billterm"
+     xmlns:bt-days="http://www.gnucash.org/XML/bt-days"
+     xmlns:bt-prox="http://www.gnucash.org/XML/bt-prox"
+     xmlns:cust="http://www.gnucash.org/XML/cust"
+     xmlns:employee="http://www.gnucash.org/XML/employee"
+     xmlns:entry="http://www.gnucash.org/XML/entry"
+     xmlns:invoice="http://www.gnucash.org/XML/invoice"
+     xmlns:job="http://www.gnucash.org/XML/job"
+     xmlns:order="http://www.gnucash.org/XML/order"
+     xmlns:taxtable="http://www.gnucash.org/XML/taxtable"
+     xmlns:tte="http://www.gnucash.org/XML/tte"
+     xmlns:vendor="http://www.gnucash.org/XML/vendor">
+<gnc:count-data cd:type="commodity">1</gnc:count-data>
+<gnc:count-data cd:type="account">64</gnc:count-data>
+<gnc:commodity version="2.0.0">
+  <cmdty:space>ISO4217</cmdty:space>
+  <cmdty:id>KRW</cmdty:id>
+  <cmdty:get_quotes/>
+  <cmdty:quote_source>currency</cmdty:quote_source>
+  <cmdty:quote_tz/>
+</gnc:commodity>
+<gnc:commodity version="2.0.0">
+  <cmdty:space>template</cmdty:space>
+  <cmdty:id>template</cmdty:id>
+  <cmdty:name>template</cmdty:name>
+  <cmdty:xcode>template</cmdty:xcode>
+  <cmdty:fraction>1</cmdty:fraction>
+</gnc:commodity>
+<gnc:account version="2.0.0">
+  <act:name>최상위 계정</act:name>
+  <act:id type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:id>
+  <act:type>ROOT</act:type>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자산</act:name>
+  <act:id type="guid">11fa67ab80d2e7862fecf31fc390c5c2</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자산</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+    <slot>
+      <slot:key>color</slot:key>
+      <slot:value type="string">#1469EB</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>유동자산</act:name>
+  <act:id type="guid">9c0d217ae0521c97afb5322e67b149e4</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>유동자산</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">11fa67ab80d2e7862fecf31fc390c5c2</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자유입출금</act:name>
+  <act:id type="guid">8a9d4c51aabbc3343887dec7f8843ecd</act:id>
+  <act:type>BANK</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자유입출금예금</act:description>
+  <act:parent type="guid">9c0d217ae0521c97afb5322e67b149e4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>보통예금</act:name>
+  <act:id type="guid">dd963d88aba67edaa4d9c9c7e87c4ddc</act:id>
+  <act:type>BANK</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>보통예금</act:description>
+  <act:parent type="guid">9c0d217ae0521c97afb5322e67b149e4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>현금</act:name>
+  <act:id type="guid">b687a487849470c25e0ff5aaad6a522b</act:id>
+  <act:type>CASH</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>현금</act:description>
+  <act:parent type="guid">9c0d217ae0521c97afb5322e67b149e4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>부채</act:name>
+  <act:id type="guid">9a7baa807f6c637dc6fff42874ca5fe0</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>부채</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+    <slot>
+      <slot:key>color</slot:key>
+      <slot:value type="string">#B304AD</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>신용카드</act:name>
+  <act:id type="guid">62c191c4e7e2e8a7ddf6c77de0d0c6d0</act:id>
+  <act:type>CREDIT</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>신용카드</act:description>
+  <act:parent type="guid">9a7baa807f6c637dc6fff42874ca5fe0</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>소득</act:name>
+  <act:id type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>소득</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>color</slot:key>
+      <slot:value type="string">#1B4F15</slot:value>
+    </slot>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>보너스</act:name>
+  <act:id type="guid">cf9de4a88e96293c3a7aec5d0562b220</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>보너스</act:description>
+  <act:parent type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>받은 선물</act:name>
+  <act:id type="guid">b01950c0df0890b6543209d51c8e0b0f</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>받은 선물</act:description>
+  <act:parent type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>수입이자</act:name>
+  <act:id type="guid">fe793c17402174c2ea1f84b31576b13c</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>수입이자</act:description>
+  <act:parent type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자유입출금예금이자</act:name>
+  <act:id type="guid">f509ec28fdcfd1739a1be660c6769072</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자유입출금예금이자</act:description>
+  <act:parent type="guid">fe793c17402174c2ea1f84b31576b13c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>기타이자</act:name>
+  <act:id type="guid">56463d4b4284fe99581a18e7e6f1344b</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>기타이자</act:description>
+  <act:parent type="guid">fe793c17402174c2ea1f84b31576b13c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>보통예금이자</act:name>
+  <act:id type="guid">62fce772a569ac3bdad7b1bddda5d22e</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>보통예금이자</act:description>
+  <act:parent type="guid">fe793c17402174c2ea1f84b31576b13c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>기타소득</act:name>
+  <act:id type="guid">f99fc101a17d1a0cffdcf57e9bb7e89c</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>기타소득</act:description>
+  <act:parent type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>급여</act:name>
+  <act:id type="guid">a55afc14aff166a9b85bc994b465da0a</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>급여</act:description>
+  <act:parent type="guid">fbc7d605a440c1a08ed00e7b4bdf2bfc</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>지출</act:name>
+  <act:id type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>지출</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+    <slot>
+      <slot:key>color</slot:key>
+      <slot:value type="string">#D13E29</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>조정</act:name>
+  <act:id type="guid">532ee7592d4efae7fe2418891d598e59</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>조정</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자동차</act:name>
+  <act:id type="guid">49900760a4b786567f48301a4cfa1c30</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자동차</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>수수료</act:name>
+  <act:id type="guid">39318c7db2ec046e8f38072890d97828</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>수수료</act:description>
+  <act:parent type="guid">49900760a4b786567f48301a4cfa1c30</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>연료</act:name>
+  <act:id type="guid">aafefd171e9b1d9e37e266f563a2fec6</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>연료</act:description>
+  <act:parent type="guid">49900760a4b786567f48301a4cfa1c30</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>주차</act:name>
+  <act:id type="guid">c01a40bc72a9852473ec9f5df59e5556</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>주차</act:description>
+  <act:parent type="guid">49900760a4b786567f48301a4cfa1c30</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>유지관리</act:name>
+  <act:id type="guid">7607d476d90a972e3e66c6a3a95f538a</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>유지관리</act:description>
+  <act:parent type="guid">49900760a4b786567f48301a4cfa1c30</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>은행수수료</act:name>
+  <act:id type="guid">7d56b09600b6b050b77d3c04449ae104</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>은행수수료</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>서적</act:name>
+  <act:id type="guid">a8b342435aceac7c3cac214f9385dd72</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>서적</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>인터넷</act:name>
+  <act:id type="guid">dc74d6d541681eae5f730dade7794a90</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>인터넷</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>기부</act:name>
+  <act:id type="guid">d216ab1115d2af64eb71da699a10e76b</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>기부</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>의류</act:name>
+  <act:id type="guid">84be9464b390735432c3bd473a71c23e</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>의류</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>컴퓨터</act:name>
+  <act:id type="guid">101fca3c410abc2338eb9060b3bdb449</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>컴퓨터</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>식비</act:name>
+  <act:id type="guid">62922c5ccb31d6198259739d27d858fe</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>식비</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>교육</act:name>
+  <act:id type="guid">bb7fb81b75cbbe9838a549f170d03279</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>교육</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>여가</act:name>
+  <act:id type="guid">1c1d2cb54a5da4b41a2b4cea5d5287f4</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>여가</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>음악/영화</act:name>
+  <act:id type="guid">f59aa127e7c218892ecf625e2af30bd3</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>음악/영화</act:description>
+  <act:parent type="guid">1c1d2cb54a5da4b41a2b4cea5d5287f4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>오락</act:name>
+  <act:id type="guid">5d0e0e1dc946e315757acb934b3f27ca</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>오락</act:description>
+  <act:parent type="guid">1c1d2cb54a5da4b41a2b4cea5d5287f4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>여행</act:name>
+  <act:id type="guid">b141c17615aab801a941c9ef27fb9380</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>여행</act:description>
+  <act:parent type="guid">1c1d2cb54a5da4b41a2b4cea5d5287f4</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>선물</act:name>
+  <act:id type="guid">e0dd43f5dbff5af15175bc3fb449f541</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>선물</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>식료품</act:name>
+  <act:id type="guid">0534baaed99504f7bfbea21157cbee09</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>식료품</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>취미</act:name>
+  <act:id type="guid">06afd2a6a763fef18c22514322f88c97</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>취미</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>보험</act:name>
+  <act:id type="guid">00f1d1b4d7846ed3638b18a34c559947</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>보험</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자동차보험</act:name>
+  <act:id type="guid">21283de36ba7c082cfb819099d8144c8</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자동차보험</act:description>
+  <act:parent type="guid">00f1d1b4d7846ed3638b18a34c559947</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>건강보험</act:name>
+  <act:id type="guid">c9cee67b37323c1e1b415e1ecff13019</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>건강보험</act:description>
+  <act:parent type="guid">00f1d1b4d7846ed3638b18a34c559947</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>생명보험</act:name>
+  <act:id type="guid">c156b2874329ab099adfe6c8fafa45aa</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>생명보험</act:description>
+  <act:parent type="guid">00f1d1b4d7846ed3638b18a34c559947</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>세탁</act:name>
+  <act:id type="guid">5c96c378a82eaff86b8e2e899f39cf51</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>세탁</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>병의원</act:name>
+  <act:id type="guid">c22e5b35f5d4af1a2813aa5480a522c9</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>병의원</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>잡지출</act:name>
+  <act:id type="guid">d1fa16e570edfd54a0abf34914e9cf09</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>잡지출</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>온라인서비스</act:name>
+  <act:id type="guid">9d0fff9b9c84e363d1a6cd896712e8a4</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>온라인서비스</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>전화</act:name>
+  <act:id type="guid">1d7d18941822328be729fe45215cc665</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>전화</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>대중교통</act:name>
+  <act:id type="guid">025822f20e5c485b282d9971b6394716</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>대중교통</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>구독</act:name>
+  <act:id type="guid">f84f9f54747fc2b827fe3704e2b3a0c3</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>구독</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>생필품</act:name>
+  <act:id type="guid">9a36cc4b1764ea2c33fa2726fd45d676</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>생필품</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>세금</act:name>
+  <act:id type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>세금</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>국세</act:name>
+  <act:id type="guid">2c8a63eabb2cfa3a45ad1057c52fdc0b</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>국세</act:description>
+  <act:parent type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>국민건강보험</act:name>
+  <act:id type="guid">c1b00656fa7f211a834c4292ce7a4359</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>국민건강보험</act:description>
+  <act:parent type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>기타세금</act:name>
+  <act:id type="guid">c3888aa8e881814b94c8612183125b4f</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>기타세금</act:description>
+  <act:parent type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>국민연금</act:name>
+  <act:id type="guid">7384455e943b8e3523a2807d0b3d9608</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>국민연금</act:description>
+  <act:parent type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>지방세</act:name>
+  <act:id type="guid">6a971fc698ef7f5b89da22f4e51577de</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>지방세</act:description>
+  <act:parent type="guid">8358c4553b2d0d3fb6f4883cfc036f4c</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>공과금</act:name>
+  <act:id type="guid">7fceca3ecbe8e6cd713b0e555e14001d</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>공과금</act:description>
+  <act:parent type="guid">89fe1fc8a0276c3ba0cdcb83c75f6d43</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>전기</act:name>
+  <act:id type="guid">9db7cf0a28241491a3205615b04d20f2</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>전기</act:description>
+  <act:parent type="guid">7fceca3ecbe8e6cd713b0e555e14001d</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>쓰레기수거</act:name>
+  <act:id type="guid">d7c7bf631292de49fa063c118a9a0f5d</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>쓰레기수거</act:description>
+  <act:parent type="guid">7fceca3ecbe8e6cd713b0e555e14001d</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>가스</act:name>
+  <act:id type="guid">a0eeb7634d833649ef66f6a8179e4b3f</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>가스</act:description>
+  <act:parent type="guid">7fceca3ecbe8e6cd713b0e555e14001d</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>수도</act:name>
+  <act:id type="guid">406ad9c1bdf5c1e41d47d99ccfc721fd</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>수도</act:description>
+  <act:parent type="guid">7fceca3ecbe8e6cd713b0e555e14001d</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>자기자본</act:name>
+  <act:id type="guid">058c9653fce69df1ebe994f3aa77266f</act:id>
+  <act:type>EQUITY</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>자기자본</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+    <slot>
+      <slot:key>color</slot:key>
+      <slot:value type="string">#EE8600</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">a6cb26f377e4ecbd6d5122484a4e283b</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>기초잔고</act:name>
+  <act:id type="guid">5d7398633947af8ba50018145eb824e0</act:id>
+  <act:type>EQUITY</act:type>
+  <act:commodity>
+    <cmdty:space>ISO4217</cmdty:space>
+    <cmdty:id>KRW</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>기초잔고</act:description>
+  <act:parent type="guid">058c9653fce69df1ebe994f3aa77266f</act:parent>
+</gnc:account>
+</gnc-v2>
+
+<!-- Local variables: -->
+<!-- mode: xml        -->
+<!-- End:             -->
