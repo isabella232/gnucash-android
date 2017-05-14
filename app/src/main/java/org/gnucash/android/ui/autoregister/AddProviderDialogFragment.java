@@ -1,33 +1,19 @@
 package org.gnucash.android.ui.autoregister;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-
-import com.owncloud.android.lib.common.OwnCloudClient;
-import com.owncloud.android.lib.common.OwnCloudClientFactory;
-import com.owncloud.android.lib.common.OwnCloudCredentialsFactory;
-import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
-import com.owncloud.android.lib.common.operations.RemoteOperation;
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.resources.status.GetRemoteStatusOperation;
-import com.owncloud.android.lib.resources.users.GetRemoteUserNameOperation;
+import android.widget.TextView;
 
 import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
@@ -39,8 +25,6 @@ import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.util.AutoRegisterManager;
 import org.gnucash.android.util.QualifiedAccountNameCursorAdapter;
 
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -48,8 +32,6 @@ import butterknife.ButterKnife;
  * A fragment for adding an ownCloud account.
  */
 public class AddProviderDialogFragment extends DialogFragment {
-    private AutoRegisterProvider mProvider;
-
     /**
      * Dialog positive button. Ok to save and validate the data
      */
@@ -70,7 +52,7 @@ public class AddProviderDialogFragment extends DialogFragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment AddProviderDialogFragment.
      */
-    public static AddProviderDialogFragment newInstance(AutoRegisterProvider provider) {
+    public static AddProviderDialogFragment newInstance() {
         AddProviderDialogFragment fragment = new AddProviderDialogFragment();
         return fragment;
     }
@@ -104,17 +86,37 @@ public class AddProviderDialogFragment extends DialogFragment {
         SpinnerAdapter providerAdapter = new ArrayAdapter<AutoRegisterProvider>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item,
                 manager.getProviders()) {
+
+            private View setLabel(int position, View v) {
+                AutoRegisterProvider p = getItem(position);
+                String label = new StringBuilder(p.getDescription()).
+                        append(" (").append(p.getPhoneNo()).append(')').toString();
+
+                TextView textView = (TextView) v.findViewById(android.R.id.text1);
+                textView.setText(label);
+
+                return v;
+            }
+
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                return super.getView(position, convertView, parent);
+                View v = super.getView(position, convertView, parent);
+                return setLabel(position, v);
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                return setLabel(position, v);
             }
         };
+
         mProviderSpinner.setAdapter(providerAdapter);
 
         // Initialize account spinner
         AccountsDbAdapter accountsDbAdapter = AccountsDbAdapter.getInstance();
-        AccountType accountType = AccountType.LIABILITY;
+        AccountType accountType = AccountType.CREDIT;
 
         String accountConditions = "("
                 + DatabaseSchema.AccountEntry.COLUMN_TYPE + " = ? )";
@@ -149,10 +151,11 @@ public class AddProviderDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
+                AutoRegisterProvider provider = (AutoRegisterProvider) mProviderSpinner.getSelectedItem();
                 String accountUID = accountsDbAdapter.getUID(mTargetAccountSpinner.getSelectedItemId());
 
-                mProvider.setAccountUID(accountUID);
-                providerDbAdapter.addRecord(mProvider);
+                provider.setAccountUID(accountUID);
+                providerDbAdapter.addRecord(provider);
 
                 dismiss();
             }

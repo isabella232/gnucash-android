@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -132,7 +133,7 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
 
         @Override
         public Fragment getItem(int i) {
-            Fragment currentFragment = (AccountsListFragment) mFragmentPageReferenceMap.get(i);
+            Fragment currentFragment = mFragmentPageReferenceMap.get(i);
             if (currentFragment == null) {
                 switch (i) {
                     case INDEX_PROVIDERS_FRAGMENT:
@@ -211,18 +212,18 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
         });
 
         setCurrentTab();
-/*
 
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addAccountIntent = new Intent(AutoRegisterActivity.this, FormActivity.class);
-                addAccountIntent.setAction(Intent.ACTION_INSERT_OR_EDIT);
-                addAccountIntent.putExtra(UxArgument.FORM_TYPE, FormActivity.FormType.ACCOUNT.name());
-                startActivityForResult(addAccountIntent, AutoRegisterActivity.REQUEST_EDIT_ACCOUNT);
+                int index = mViewPager.getCurrentItem();
+                if (index == INDEX_PROVIDERS_FRAGMENT) {
+                    DialogFragment dialogFragment = AddProviderDialogFragment.newInstance();
+                    dialogFragment.setTargetFragment(mPagerAdapter.getItem(index), 0);
+                    dialogFragment.show(getSupportFragmentManager(), "add_provider_dialog");
+                }
             }
         });
-*/
 	}
 
     @Override

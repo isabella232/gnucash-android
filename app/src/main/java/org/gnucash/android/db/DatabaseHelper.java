@@ -44,6 +44,8 @@ import static org.gnucash.android.db.DatabaseSchema.RecurrenceEntry;
 import static org.gnucash.android.db.DatabaseSchema.ScheduledActionEntry;
 import static org.gnucash.android.db.DatabaseSchema.SplitEntry;
 import static org.gnucash.android.db.DatabaseSchema.TransactionEntry;
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
+
 /**
  * Helper class for managing the SQLite database.
  * Creates the database and handles upgrades
@@ -221,6 +223,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + RecurrenceEntry.COLUMN_MODIFIED_AT    + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP); "
             + createUpdatedAtTrigger(RecurrenceEntry.TABLE_NAME);
 
+    private static final String AUTOREGISTER_PROVIDER_TABLE_CREATE = "CREATE TABLE " + AutoRegisterProviderEntry.TABLE_NAME + " ("
+            + AutoRegisterProviderEntry._ID                + " integer primary key autoincrement, "
+            + AutoRegisterProviderEntry.COLUMN_UID         + " varchar(255) not null UNIQUE, "
+            + AutoRegisterProviderEntry.COLUMN_NAME        + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_DESCRIPTION + " varchar(255), "
+            + AutoRegisterProviderEntry.COLUMN_PHONE_NO    + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_VERSION     + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_ENABLED     + " tinyint default 1, "
+            + AutoRegisterProviderEntry.COLUMN_LAST_SYNC   + " timestamp, "
+            + AutoRegisterProviderEntry.COLUMN_CREATED_AT  + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterProviderEntry.COLUMN_MODIFIED_AT + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + "FOREIGN KEY (" 	+ AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID + ") REFERENCES " + AccountEntry.TABLE_NAME + " (" + AccountEntry.COLUMN_UID + ") ON DELETE CASCADE "
+            + ");" + createUpdatedAtTrigger(AutoRegisterProviderEntry.TABLE_NAME);
 
     /**
 	 * Constructor
@@ -316,7 +332,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(RECURRENCE_TABLE_CREATE);
         db.execSQL(BUDGETS_TABLE_CREATE);
         db.execSQL(BUDGET_AMOUNTS_TABLE_CREATE);
-
+        db.execSQL(AUTOREGISTER_PROVIDER_TABLE_CREATE);
 
         String createAccountUidIndex = "CREATE UNIQUE INDEX '" + AccountEntry.INDEX_UID + "' ON "
                 + AccountEntry.TABLE_NAME + "(" + AccountEntry.COLUMN_UID + ")";
@@ -345,6 +361,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createRecurrenceUidIndex = "CREATE UNIQUE INDEX '" + RecurrenceEntry.INDEX_UID
                 + "' ON " + RecurrenceEntry.TABLE_NAME + "(" + RecurrenceEntry.COLUMN_UID + ")";
 
+        String createAutoRegisterProviderUidIndex = "CREATE UNIQUE INDEX '" + AutoRegisterProviderEntry.INDEX_UID
+                + "' ON " + AutoRegisterProviderEntry.TABLE_NAME + "(" + AutoRegisterProviderEntry.COLUMN_UID + ")";
+
         db.execSQL(createAccountUidIndex);
         db.execSQL(createTransactionUidIndex);
         db.execSQL(createSplitUidIndex);
@@ -354,6 +373,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBudgetUidIndex);
         db.execSQL(createRecurrenceUidIndex);
         db.execSQL(createBudgetAmountUidIndex);
+        db.execSQL(createAutoRegisterProviderUidIndex);
 
         try {
             MigrationHelper.importCommodities(db);

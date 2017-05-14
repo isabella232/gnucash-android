@@ -17,24 +17,15 @@
 package org.gnucash.android.db.adapter;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
-import org.gnucash.android.model.AutoRegisterMapping;
 import org.gnucash.android.model.AutoRegisterProvider;
-import org.gnucash.android.model.Book;
-import org.gnucash.android.ui.settings.PreferenceActivity;
 import org.gnucash.android.util.TimestampHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Database adapter for creating/modifying Auto-register provider entries
@@ -52,6 +43,7 @@ public class AutoRegisterProviderDbAdapter extends DatabaseAdapter<AutoRegisterP
                 AutoRegisterProviderEntry.COLUMN_DESCRIPTION,
                 AutoRegisterProviderEntry.COLUMN_PHONE_NO,
                 AutoRegisterProviderEntry.COLUMN_VERSION,
+                AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID,
                 AutoRegisterProviderEntry.COLUMN_ENABLED,
                 AutoRegisterProviderEntry.COLUMN_LAST_SYNC
         });
@@ -79,6 +71,7 @@ public class AutoRegisterProviderDbAdapter extends DatabaseAdapter<AutoRegisterP
 
         AutoRegisterProvider provider = new AutoRegisterProvider(
                 name, description, phoneNo, version);
+        provider.setAccountUID(accountUID);
         provider.setEnabled(enabled > 0);
         provider.setLastSync(TimestampHelper.getTimestampFromUtcString(lastSync));
 
@@ -95,7 +88,8 @@ public class AutoRegisterProviderDbAdapter extends DatabaseAdapter<AutoRegisterP
         stmt.bindString(4, provider.getVersion());
         stmt.bindString(5, provider.getAccountUID());
         stmt.bindLong(6, provider.isEnabled() ? 1L : 0L);
-        stmt.bindString(7, TimestampHelper.getUtcStringFromTimestamp(provider.getLastSync()));
+        if (provider.getLastSync() != null)
+            stmt.bindString(7, TimestampHelper.getUtcStringFromTimestamp(provider.getLastSync()));
         stmt.bindString(8, provider.getUID());
         return stmt;
     }
