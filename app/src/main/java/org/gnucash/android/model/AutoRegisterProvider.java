@@ -38,7 +38,7 @@ public class AutoRegisterProvider extends BaseModel {
     private String mPhoneNo;
     private String mVersion;
     private String mAccountUID;
-    private boolean mEnabled;
+    private boolean mEnabled = true;
     private Timestamp mLastSync;
 
     private List<Pattern> mPatterns = new ArrayList<>();

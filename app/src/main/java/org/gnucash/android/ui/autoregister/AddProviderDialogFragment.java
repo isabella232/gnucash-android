@@ -1,5 +1,6 @@
 package org.gnucash.android.ui.autoregister;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import org.gnucash.android.db.adapter.AccountsDbAdapter;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.model.AccountType;
 import org.gnucash.android.model.AutoRegisterProvider;
+import org.gnucash.android.ui.common.Refreshable;
 import org.gnucash.android.util.AutoRegisterManager;
 import org.gnucash.android.util.QualifiedAccountNameCursorAdapter;
 
@@ -44,8 +46,6 @@ public class AddProviderDialogFragment extends DialogFragment {
 
     @BindView(R.id.source_provider_spinner) Spinner mProviderSpinner;
     @BindView(R.id.target_accounts_spinner) Spinner mTargetAccountSpinner;
-
-    private Context mContext;
 
     /**
      * Use this factory method to create a new instance of
@@ -157,6 +157,7 @@ public class AddProviderDialogFragment extends DialogFragment {
                 provider.setAccountUID(accountUID);
                 providerDbAdapter.addRecord(provider);
 
+                ((Refreshable) getTargetFragment()).refresh();
                 dismiss();
             }
         });

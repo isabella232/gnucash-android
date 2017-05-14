@@ -16,10 +16,16 @@
 
 package org.gnucash.android.ui.autoregister;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -27,35 +33,44 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
-import org.gnucash.android.model.AutoRegisterProvider;
+import org.gnucash.android.db.DatabaseCursorLoader;
+import org.gnucash.android.db.adapter.AccountsDbAdapter;
+import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.ui.account.AccountsActivity;
+import org.gnucash.android.ui.common.Refreshable;
+import org.gnucash.android.ui.util.CursorRecyclerAdapter;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
-import org.gnucash.android.util.AutoRegisterManager;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
+
 /**
  *
  */
-public class ProvidersListFragment extends Fragment {
+public class ProvidersListFragment extends Fragment implements Refreshable,
+        LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ProvidersListFragment.class.getSimpleName();
 
-    private ProviderAdapter mProviderAdapter;
+    private AutoRegisterProviderDbAdapter mProviderDbAdapter;
+    private AccountsDbAdapter mAccountsDbAdapter;
+
+    private ProviderRecyclerAdapter mProviderRecyclerAdapter;
 
     @BindView(R.id.auto_register_recycler_view) EmptyRecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyTextView;
@@ -93,25 +108,41 @@ public class ProvidersListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+/*
         ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionbar.setTitle(R.string.title_auto_register_providers);
         actionbar.setDisplayHomeAsUpEnabled(true);
         setHasOptionsMenu(true);
+*/
 
-        AutoRegisterManager manager = GnuCashApplication.getAutoRegisterManager();
-        mProviderAdapter = new ProviderAdapter(manager.getProviders());
+        mProviderRecyclerAdapter = new ProviderRecyclerAdapter(null);
+        mRecyclerView.setAdapter(mProviderRecyclerAdapter);
+    }
 
-        mRecyclerView.setAdapter(mProviderAdapter);
+    @Override
+    public void onStart() {
+        super.onStart();
+        mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
+        mAccountsDbAdapter = AccountsDbAdapter.getInstance();
     }
 
     @Override
     public void onResume() {
+        Log.d(LOG_TAG, "onResume()");
         super.onResume();
+        refresh();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.book_list_actions, menu);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mProviderRecyclerAdapter != null)
+            mProviderRecyclerAdapter.swapCursor(null);
     }
 
     @Override
@@ -132,11 +163,56 @@ public class ProvidersListFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    private class ProviderAdapter extends RecyclerView.Adapter<ProviderViewHolder> {
-        private List<AutoRegisterProvider> mProviders;
+    @Override
+    public void refresh() {
+        Log.d(LOG_TAG, "refresh()");
+        getLoaderManager().restartLoader(0, null, this);
+    }
 
-        public ProviderAdapter(List<AutoRegisterProvider> providers) {
-            this.mProviders = providers;
+    @Override
+    public void refresh(String uid) {
+        Log.d(LOG_TAG, "refresh(uid)");
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(LOG_TAG, "Creating the providers loader");
+
+        return new ProviderCursorLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(LOG_TAG, "Providers loader finished. Swapping in cursor");
+        mProviderRecyclerAdapter.swapCursor(data);
+        mProviderRecyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(LOG_TAG, "Resetting the providers loader");
+        mProviderRecyclerAdapter.swapCursor(null);
+    }
+
+    private static final class ProviderCursorLoader extends DatabaseCursorLoader {
+        ProviderCursorLoader(Context context) {
+            super(context);
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            AutoRegisterProviderDbAdapter adapter = AutoRegisterProviderDbAdapter.getInstance();
+            Cursor cursor = adapter.fetchAllRecords();
+
+            if (cursor != null)
+                registerContentObserver(cursor);
+            return cursor;
+        }
+    }
+
+    private class ProviderRecyclerAdapter extends CursorRecyclerAdapter<ProviderViewHolder> {
+        public ProviderRecyclerAdapter(Cursor cursor) {
+            super(cursor);
         }
 
         @Override
@@ -148,26 +224,38 @@ public class ProvidersListFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ProviderViewHolder holder, int position) {
-            AutoRegisterProvider p = mProviders.get(position);
+        public void onBindViewHolderCursor(final ProviderViewHolder holder, final Cursor cursor) {
+            final String uid = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AutoRegisterProviderEntry.COLUMN_UID)
+            );
+            String description = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AutoRegisterProviderEntry.COLUMN_DESCRIPTION)
+            );
+            String phoneNo = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AutoRegisterProviderEntry.COLUMN_PHONE_NO)
+            );
 
-            String id = p.getName();
-            holder.providerName.setText(p.getDescription());
-            holder.description.setText(p.getPhoneNo());
+            String accountUID = cursor.getString(
+                    cursor.getColumnIndexOrThrow(AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID)
+            );
+            String accountName = mAccountsDbAdapter.getAccountFullName(accountUID);
 
-/*
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            String title = new StringBuilder().append(description).append(" > ")
+                    .append(accountName).toString();
+
+            holder.providerName.setText(title);
+            holder.description.setText(phoneNo);
+
+            boolean isEnabled = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(AutoRegisterProviderEntry.COLUMN_ENABLED)
+            ) > 0;
+            holder.providerOnoff.setChecked(isEnabled);
+            holder.providerOnoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View v) {
-                    onListItemClick(id);
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    mProviderDbAdapter.setEnabled(uid, b);
                 }
             });
-*/
-        }
-
-        @Override
-        public int getItemCount() {
-            return mProviders.size();
         }
     }
 

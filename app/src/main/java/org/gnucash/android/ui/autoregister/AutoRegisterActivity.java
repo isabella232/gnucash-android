@@ -219,7 +219,7 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
                 int index = mViewPager.getCurrentItem();
                 if (index == INDEX_PROVIDERS_FRAGMENT) {
                     DialogFragment dialogFragment = AddProviderDialogFragment.newInstance();
-                    dialogFragment.setTargetFragment(mPagerAdapter.getItem(index), 0);
+                    dialogFragment.setTargetFragment(mPagerAdapter.getItem(index), Activity.RESULT_OK);
                     dialogFragment.show(getSupportFragmentManager(), "add_provider_dialog");
                 }
             }

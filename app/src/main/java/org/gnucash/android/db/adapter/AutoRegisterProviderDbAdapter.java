@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
@@ -101,6 +102,7 @@ public class AutoRegisterProviderDbAdapter extends DatabaseAdapter<AutoRegisterP
      * @return GUID of the currently active book
      */
     public String setEnabled(@NonNull String providerUID, boolean enabled){
+        Log.d(LOG_TAG, "setEnabled(): uid = " + providerUID + ", enabled = " + enabled);
         ContentValues contentValues = new ContentValues();
         contentValues.put(AutoRegisterProviderEntry.COLUMN_ENABLED, enabled ? 1 : 0);
         mDb.update(mTableName, contentValues, AutoRegisterProviderEntry.COLUMN_UID + " = ?", new String[]{providerUID});
