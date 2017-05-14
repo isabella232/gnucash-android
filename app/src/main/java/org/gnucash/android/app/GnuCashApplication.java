@@ -41,6 +41,7 @@ import org.gnucash.android.R;
 import org.gnucash.android.db.BookDbHelper;
 import org.gnucash.android.db.DatabaseHelper;
 import org.gnucash.android.db.adapter.AccountsDbAdapter;
+import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.db.adapter.BooksDbAdapter;
 import org.gnucash.android.db.adapter.BudgetAmountsDbAdapter;
 import org.gnucash.android.db.adapter.BudgetsDbAdapter;
@@ -54,6 +55,7 @@ import org.gnucash.android.model.Commodity;
 import org.gnucash.android.model.Money;
 import org.gnucash.android.service.ScheduledActionService;
 import org.gnucash.android.ui.settings.PreferenceActivity;
+import org.gnucash.android.util.AutoRegisterManager;
 
 import java.util.Currency;
 import java.util.Locale;
@@ -105,6 +107,9 @@ public class GnuCashApplication extends MultiDexApplication {
     private static BooksDbAdapter mBooksDbAdapter;
     private static DatabaseHelper mDbHelper;
 
+    private static AutoRegisterManager mAutoRegisterManager;
+    private static AutoRegisterProviderDbAdapter mAutoRegisterProviderDbAdapter;
+
     /**
      * Returns darker version of specified <code>color</code>.
      * Use for theming the status bar color when setting the color of the actionBar
@@ -132,6 +137,8 @@ public class GnuCashApplication extends MultiDexApplication {
 
         initializeDatabaseAdapters();
         setDefaultCurrencyCode(getDefaultCurrencyCode());
+
+        mAutoRegisterManager = new AutoRegisterManager();
 
         StethoUtils.install(this);
     }
@@ -165,6 +172,7 @@ public class GnuCashApplication extends MultiDexApplication {
         mCommoditiesDbAdapter       = new CommoditiesDbAdapter(mainDb);
         mBudgetAmountsDbAdapter     = new BudgetAmountsDbAdapter(mainDb);
         mBudgetsDbAdapter           = new BudgetsDbAdapter(mainDb, mBudgetAmountsDbAdapter, mRecurrenceDbAdapter);
+        mAutoRegisterProviderDbAdapter = new AutoRegisterProviderDbAdapter(mainDb, mAccountsDbAdapter);
     }
 
     public static AccountsDbAdapter getAccountsDbAdapter() {
@@ -205,6 +213,14 @@ public class GnuCashApplication extends MultiDexApplication {
 
     public static BooksDbAdapter getBooksDbAdapter(){
         return mBooksDbAdapter;
+    }
+
+    public static AutoRegisterProviderDbAdapter getAutoRegisterProviderDbAdapter(){
+        return mAutoRegisterProviderDbAdapter;
+    }
+
+    public static AutoRegisterManager getAutoRegisterManager() {
+        return mAutoRegisterManager;
     }
 
     /**

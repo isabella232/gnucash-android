@@ -274,4 +274,32 @@ public class DatabaseSchema {
 
         public static final String INDEX_UID = "recurrence_uid_index";
     }
+
+    public static abstract class AutoRegisterProviderEntry implements CommonColumns {
+        public static final String TABLE_NAME           = "autoregister_providers";
+
+        public static final String COLUMN_NAME          = "name";
+        public static final String COLUMN_DESCRIPTION   = "description";
+        public static final String COLUMN_PHONE_NO      = "phone_no";
+        public static final String COLUMN_VERSION       = "version";
+        public static final String COLUMN_ACCOUNT_UID   = "account_uid";
+        public static final String COLUMN_ENABLED       = "is_enabled";
+        public static final String COLUMN_REG_COUNT     = "reg_count";
+        public static final String COLUMN_IGNORE_COUNT  = "ignore_count";
+        public static final String COLUMN_LAST_SYNC     = "last_sync";
+
+        public static final String INDEX_UID = "autoregister_provider_uid_index";
+    }
+
+    public static abstract class AutoRegisterMappingEntry implements CommonColumns {
+        public static final String TABLE_NAME           = "autoregister_mappings";
+
+        public static final String COLUMN_MULTIPLIER    = "recurrence_mult";
+        public static final String COLUMN_PERIOD_TYPE   = "recurrence_period_type";
+        public static final String COLUMN_PERIOD_START  = "recurrence_period_start";
+        public static final String COLUMN_PERIOD_END    = "recurrence_period_end";
+        public static final String COLUMN_BYDAY         = "recurrence_byday";
+
+        public static final String INDEX_UID = "recurrence_uid_index";
+    }
 }

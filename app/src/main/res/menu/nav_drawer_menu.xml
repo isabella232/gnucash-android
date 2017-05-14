@@ -49,6 +49,10 @@
                 android:id="@+id/nav_item_export"
                 android:icon="@drawable/ic_backup_black_24dp"
                 android:title="@string/nav_menu_export"/>
+            <item
+                android:id="@+id/nav_item_autoregister"
+                android:icon="@drawable/ic_textsms_black_24dp"
+                android:title="@string/nav_menu_auto_register"/>
         </menu>
     </item>
     <item

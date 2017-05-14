@@ -222,7 +222,9 @@ dependencies {
             'net.objecthunter:exp4j:0.4.7',
             'org.apache.jackrabbit:jackrabbit-webdav:2.13.3',
             'com.dropbox.core:dropbox-core-sdk:2.1.2',
-            'com.android.support:multidex:1.0.1'
+            'com.android.support:multidex:1.0.1',
+            'com.github.tony19:named-regexp:0.2.4',
+            'com.googlecode.libphonenumber:libphonenumber:8.4.2'
     )
 
     debugCompile 'com.facebook.stetho:stetho:1.4.2'

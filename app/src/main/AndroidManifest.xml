@@ -106,6 +106,8 @@
             android:theme="@style/Theme.GnucashTheme" />
         <activity android:name=".ui.settings.PreferenceActivity"
             android:theme="@style/Theme.GnucashTheme" />
+        <activity android:name=".ui.autoregister.AutoRegisterActivity"
+              android:launchMode="singleTop" />
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:launchMode="singleTask"
@@ -152,6 +154,13 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receivers.SMSReceiver"
+            android:label="Receives SMS to record transactions"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
         <provider

@@ -45,6 +45,7 @@ import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.db.DatabaseSchema;
 import org.gnucash.android.db.adapter.BooksDbAdapter;
 import org.gnucash.android.ui.account.AccountsActivity;
+import org.gnucash.android.ui.autoregister.AutoRegisterActivity;
 import org.gnucash.android.ui.passcode.PasscodeLockActivity;
 import org.gnucash.android.ui.report.ReportsActivity;
 import org.gnucash.android.ui.settings.PreferenceActivity;
@@ -274,6 +275,10 @@ public abstract class BaseDrawerActivity extends PasscodeLockActivity implements
 
             case R.id.nav_item_export:
                 AccountsActivity.openExportFragment(this);
+                break;
+
+            case R.id.nav_item_autoregister:
+                startActivity(new Intent(this, AutoRegisterActivity.class));
                 break;
 
             case R.id.nav_item_settings: //Settings activity
