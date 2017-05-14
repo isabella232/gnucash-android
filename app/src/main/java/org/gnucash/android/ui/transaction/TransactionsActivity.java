@@ -63,6 +63,7 @@ import org.gnucash.android.util.QualifiedAccountNameCursorAdapter;
 import org.joda.time.LocalDate;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -94,7 +95,6 @@ public class TransactionsActivity extends BaseDrawerActivity implements
      * Number of pages to show
      */
     private static final int DEFAULT_NUM_PAGES = 2;
-    private static SimpleDateFormat mDayMonthDateFormat = new SimpleDateFormat("EEE, d MMM");
 
     /**
      * GUID of {@link Account} whose transactions are displayed
@@ -389,7 +389,7 @@ public class TransactionsActivity extends BaseDrawerActivity implements
 
 		updateNavigationSelection();
 	}
-	
+
 	/**
 	 * Updates the action bar navigation list selection to that of the current account
 	 * whose transactions are being displayed/manipulated
@@ -506,10 +506,11 @@ public class TransactionsActivity extends BaseDrawerActivity implements
         String prettyDateText = null;
         if (transactionTime.compareTo(today.minusDays(1)) >= 0 && transactionTime.compareTo(today.plusDays(1)) <= 0){
             prettyDateText = DateUtils.getRelativeTimeSpanString(dateMillis, System.currentTimeMillis(), DateUtils.DAY_IN_MILLIS).toString();
-        } else if (transactionTime.getYear() == today.getYear()){
-            prettyDateText = mDayMonthDateFormat.format(new Date(dateMillis));
         } else {
-            prettyDateText = DateUtils.formatDateTime(context, dateMillis, DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_YEAR);
+            int formatFlags = transactionTime.getYear() == today.getYear() ?
+                    DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_NO_YEAR :
+                    DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_YEAR;
+            prettyDateText = DateUtils.formatDateTime(context, dateMillis, formatFlags);
         }
 
         return prettyDateText;
