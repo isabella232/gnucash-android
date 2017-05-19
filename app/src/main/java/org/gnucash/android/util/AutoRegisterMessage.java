@@ -1,6 +1,7 @@
 package org.gnucash.android.util;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,5 +33,21 @@ public class AutoRegisterMessage {
 
     public void set(String key, String value) {
         _map.put(key, value);
+    }
+
+    public String getVendor() {
+        return get(VENDOR);
+    }
+
+    public String getInstalment() {
+        return get(INSTALMENT);
+    }
+
+    public String getDate() {
+        return get(DATE);
+    }
+
+    public BigDecimal getAmount() {
+        return getBigDecimal(AMOUNT);
     }
  }

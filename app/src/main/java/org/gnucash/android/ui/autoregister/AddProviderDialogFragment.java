@@ -1,7 +1,5 @@
 package org.gnucash.android.ui.autoregister;
 
-import android.app.Activity;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;

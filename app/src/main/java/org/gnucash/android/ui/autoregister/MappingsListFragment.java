@@ -20,15 +20,12 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +37,6 @@ import android.widget.TextView;
 import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.model.AutoRegisterProvider;
-import org.gnucash.android.ui.account.AccountsActivity;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
 import org.gnucash.android.util.AutoRegisterManager;
 
@@ -93,11 +89,6 @@ public class MappingsListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        ActionBar actionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionbar.setTitle(R.string.title_auto_register);
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        setHasOptionsMenu(true);
-
         AutoRegisterManager manager = GnuCashApplication.getAutoRegisterManager();
         mProviderAdapter = new ProviderAdapter(manager.getProviders());
 
@@ -107,24 +98,6 @@ public class MappingsListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.book_list_actions, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.menu_create_book:
-                AccountsActivity.createDefaultAccounts(GnuCashApplication.getDefaultCurrencyCode(), getActivity());
-                return true;
-
-            default:
-                return false;
-        }
-
     }
 
     @Override
@@ -178,7 +151,6 @@ public class MappingsListFragment extends Fragment {
         @BindView(R.id.create_transaction) ImageView createTransaction;
         @BindView(R.id.provider_onoff) SwitchCompat providerOnoff;
         @BindView(R.id.options_menu) ImageView optionsMenu;
-        @BindView(R.id.account_color_strip) View colorStripView;
         @BindView(R.id.budget_indicator) ProgressBar budgetIndicator;
         String providerId;
 

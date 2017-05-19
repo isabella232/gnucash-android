@@ -468,4 +468,9 @@
     <string name="title_auto_register">Auto Register</string>
     <string name="title_auto_register_providers">Providers</string>
     <string name="title_auto_register_mappings">Mappings</string>
+    <string name="label_enable_autoregister">Please enable first.</string>
+    <string name="title_auto_register_messages">Auto Register Messages</string>
+    <string name="title_auto_register_messages_unprocessed">Unprocessed</string>
+    <string name="msg_read_sms_granted">Read SMS granted</string>
+    <string name="msg_receive_sms_granted">Receive SMS granted</string>
 </resources>

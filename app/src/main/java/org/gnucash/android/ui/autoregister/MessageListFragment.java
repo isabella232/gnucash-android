@@ -16,14 +16,14 @@
 
 package org.gnucash.android.ui.autoregister;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,7 +42,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.gnucash.android.R;
-import org.gnucash.android.db.DatabaseCursorLoader;
+import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.db.adapter.AccountsDbAdapter;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.model.AutoRegisterProvider;
@@ -50,6 +50,9 @@ import org.gnucash.android.ui.common.Refreshable;
 import org.gnucash.android.ui.common.UxArgument;
 import org.gnucash.android.ui.util.CursorRecyclerAdapter;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
+import org.gnucash.android.util.AutoRegisterManager;
+import org.gnucash.android.util.AutoRegisterMessage;
+import org.gnucash.android.util.CursorThrowWrapper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,26 +62,23 @@ import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 /**
  *
  */
-public class ProvidersListFragment extends Fragment implements Refreshable,
-        LoaderManager.LoaderCallbacks<Cursor>, OnProviderSelectListener {
-    private static final String LOG_TAG = ProvidersListFragment.class.getSimpleName();
+public class MessageListFragment extends Fragment implements Refreshable,
+        LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String LOG_TAG = MessageListFragment.class.getSimpleName();
 
-    private AutoRegisterProviderDbAdapter mProviderDbAdapter;
-    private AccountsDbAdapter mAccountsDbAdapter;
-
-    private ProviderRecyclerAdapter mProviderRecyclerAdapter;
+    private MessageRecyclerAdapter mMessageRecyclerAdapter;
 
     @BindView(R.id.auto_register_recycler_view) EmptyRecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyTextView;
 
-    public static ProvidersListFragment newInstance() {
-        ProvidersListFragment fragment = new ProvidersListFragment();
+    public static MessageListFragment newInstance() {
+        MessageListFragment fragment = new MessageListFragment();
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_autoregister_providers_list, container, false);
+        View v = inflater.inflate(R.layout.fragment_autoregister_messages_list, container, false);
 
         ButterKnife.bind(this, v);
         mRecyclerView.setHasFixedSize(true);
@@ -99,15 +99,16 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mProviderRecyclerAdapter = new ProviderRecyclerAdapter(null);
-        mRecyclerView.setAdapter(mProviderRecyclerAdapter);
+//        String providerUID = getArguments().getString(UxArgument.AUTOREGISTER_PROVIDER_UID);
+        AutoRegisterProvider provider = GnuCashApplication.getAutoRegisterManager().findProvider("1800-1111");
+
+        mMessageRecyclerAdapter = new MessageRecyclerAdapter(null, provider);
+        mRecyclerView.setAdapter(mMessageRecyclerAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
-        mAccountsDbAdapter = AccountsDbAdapter.getInstance();
     }
 
     @Override
@@ -120,8 +121,8 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mProviderRecyclerAdapter != null)
-            mProviderRecyclerAdapter.swapCursor(null);
+        if (mMessageRecyclerAdapter != null)
+            mMessageRecyclerAdapter.swapCursor(null);
     }
 
     @Override
@@ -139,103 +140,74 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "Creating the providers loader");
 
-        return new ProviderCursorLoader(getActivity());
+        return new CursorLoader(getContext(),
+                Telephony.Sms.Inbox.CONTENT_URI,
+                null,
+                //Telephony.Sms.Inbox.CREATOR + " = '1800-1111'",
+                null,
+                null,
+                Telephony.Sms.Inbox.DEFAULT_SORT_ORDER
+                );
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(LOG_TAG, "Providers loader finished. Swapping in cursor");
-        mProviderRecyclerAdapter.swapCursor(data);
-        mProviderRecyclerAdapter.notifyDataSetChanged();
+        mMessageRecyclerAdapter.swapCursor(data);
+        mMessageRecyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(LOG_TAG, "Resetting the providers loader");
-        mProviderRecyclerAdapter.swapCursor(null);
+        mMessageRecyclerAdapter.swapCursor(null);
     }
 
-    @Override
-    public void providerSelected(String providerUID) {
-        Log.d(LOG_TAG, "providerSelected(): uid = " + providerUID);
+    private class MessageRecyclerAdapter extends CursorRecyclerAdapter<MessageViewHolder> {
+        private AutoRegisterProvider mProvider;
 
-        Intent i = new Intent(getContext(), MessageActivity.class);
-        i.putExtra(UxArgument.AUTOREGISTER_PROVIDER_UID, providerUID);
-
-        startActivity(i);
-    }
-
-    private static final class ProviderCursorLoader extends DatabaseCursorLoader {
-        ProviderCursorLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        public Cursor loadInBackground() {
-            AutoRegisterProviderDbAdapter adapter = AutoRegisterProviderDbAdapter.getInstance();
-            Cursor cursor = adapter.fetchAllRecords();
-
-            if (cursor != null)
-                registerContentObserver(cursor);
-            return cursor;
-        }
-    }
-
-    private class ProviderRecyclerAdapter extends CursorRecyclerAdapter<ProviderViewHolder> {
-        public ProviderRecyclerAdapter(Cursor cursor) {
+        public MessageRecyclerAdapter(Cursor cursor, AutoRegisterProvider provider) {
             super(cursor);
+            mProvider = provider;
         }
 
         @Override
-        public ProviderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.cardview_autoregister_provider, parent, false
+                    R.layout.cardview_autoregister_message, parent, false
             );
-            return new ProviderViewHolder(v);
+            return new MessageViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolderCursor(final ProviderViewHolder holder, final Cursor cursor) {
-            AutoRegisterProvider provider = new AutoRegisterProvider(cursor);
+        public void onBindViewHolderCursor(final MessageViewHolder holder, final Cursor cursor) {
+            CursorThrowWrapper wrapper = new CursorThrowWrapper(cursor);
 
-            holder.primaryText.setText(
-                    new StringBuilder()
-                        .append(provider.getDescription()).append(" > ")
-                        .append(mAccountsDbAdapter.getAccountName(provider.getAccountUID()))
-                        .toString()
-            );
-            holder.secondaryText.setText(provider.getPhoneNo());
+            String body = wrapper.getString(Telephony.Sms.Inbox.BODY);
+            AutoRegisterMessage message = mProvider.parseMessage(body);
 
-            final String uid = provider.getUID();
-            holder.providerOnoff.setChecked(provider.isEnabled());
-            holder.providerOnoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    mProviderDbAdapter.setEnabled(uid, b);
-                }
-            });
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ProvidersListFragment.this.providerSelected(uid);
-                }
-            });
+            if (message != null) {
+                holder.primaryText.setText(message.getVendor());
+                holder.secondaryText.setText(message.getInstalment());
+                holder.amount.setText(message.getAmount().toString());
+                holder.date.setText(message.getDate());
+            } else {
+                holder.primaryText.setText("ERROR");
+                holder.secondaryText.setText(wrapper.getString(Telephony.Mms.Inbox.CREATOR));
+            }
         }
     }
 
-    class ProviderViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
+    class MessageViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
         @BindView(R.id.primary_text) TextView primaryText;
         @BindView(R.id.secondary_text) TextView secondaryText;
-        @BindView(R.id.account_balance) TextView accountBalance;
-        @BindView(R.id.create_transaction) ImageView createTransaction;
-        @BindView(R.id.provider_onoff) SwitchCompat providerOnoff;
+        @BindView(R.id.message_amount) TextView amount;
+        @BindView(R.id.message_date) TextView date;
         @BindView(R.id.options_menu) ImageView optionsMenu;
-        @BindView(R.id.provider_color_strip) View colorStripView;
-        @BindView(R.id.budget_indicator) ProgressBar budgetIndicator;
+        @BindView(R.id.message_color_strip) View colorStripView;
         String providerId;
 
-        public ProviderViewHolder(View itemView) {
+        public MessageViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 

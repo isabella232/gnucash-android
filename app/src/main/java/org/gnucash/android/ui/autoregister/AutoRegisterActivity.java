@@ -17,58 +17,35 @@
 
 package org.gnucash.android.ui.autoregister;
 
+import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
-import android.net.Uri;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.kobakei.ratethisapp.RateThisApp;
-
-import org.gnucash.android.BuildConfig;
 import org.gnucash.android.R;
-import org.gnucash.android.app.GnuCashApplication;
-import org.gnucash.android.db.DatabaseSchema;
-import org.gnucash.android.db.adapter.AccountsDbAdapter;
-import org.gnucash.android.db.adapter.BooksDbAdapter;
-import org.gnucash.android.export.xml.GncXmlExporter;
-import org.gnucash.android.importer.ImportAsyncTask;
-import org.gnucash.android.ui.account.AccountsListFragment;
-import org.gnucash.android.ui.account.OnAccountClickedListener;
 import org.gnucash.android.ui.common.BaseDrawerActivity;
-import org.gnucash.android.ui.common.FormActivity;
-import org.gnucash.android.ui.common.Refreshable;
-import org.gnucash.android.ui.common.UxArgument;
-import org.gnucash.android.ui.transaction.TransactionsActivity;
-import org.gnucash.android.ui.util.TaskDelegate;
-import org.gnucash.android.ui.wizard.FirstRunWizardActivity;
+import org.gnucash.android.util.PreferencesHelper;
+import org.joda.time.tz.Provider;
 
 import butterknife.BindView;
 
@@ -82,6 +59,9 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
      * Logging tag
      */
     protected static final String LOG_TAG = AutoRegisterActivity.class.getSimpleName();
+
+    private static final int REQUEST_READ_SMS_PERMISSION = 1001;
+    private static final int REQUEST_RECEIVE_SMS_PERMISSION = 1002;
 
     /**
      * Number of pages to show
@@ -99,16 +79,6 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
     public static final int INDEX_MAPPINGS_FRAGMENT = 1;
 
     /**
-     * Used to save the index of the last open tab and restore the pager to that index
-     */
-    public static final String LAST_OPEN_TAB_INDEX = "last_open_tab";
-
-    /**
-     * Key for putting argument for tab into bundle arguments
-     */
-    public static final String EXTRA_TAB_INDEX = "org.gnucash.android.extra.TAB_INDEX";
-
-    /**
      * Map containing fragments for the different tabs
      */
     private SparseArray<Fragment> mFragmentPageReferenceMap = new SparseArray<>();
@@ -118,7 +88,6 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
      */
     @BindView(R.id.pager) ViewPager mViewPager;
     @BindView(R.id.fab_create_account) FloatingActionButton mFloatingActionButton;
-    @BindView(R.id.coordinatorLayout) CoordinatorLayout mCoordinatorLayout;
 
     private AutoRegisterViewPagerAdapter mPagerAdapter;
 
@@ -189,7 +158,15 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.title_auto_register_mappings));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        //show the simple accounts list
+        if (PreferencesHelper.hasAutoRegisterRun()) {
+            tabLayout.setVisibility(View.VISIBLE);
+        } else {
+            tabLayout.setVisibility(View.GONE);
+        }
+
+        boolean enabled = PreferencesHelper.isAutoRegisterEnabled();
+        Log.d(LOG_TAG, "enabled = " + enabled);
+
         mPagerAdapter = new AutoRegisterViewPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
 
@@ -211,8 +188,6 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
             }
         });
 
-        setCurrentTab();
-
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -224,49 +199,83 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
                 }
             }
         });
+        mFloatingActionButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
 	}
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    /**
-     * Sets the current tab in the ViewPager
-     */
-    public void setCurrentTab(){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int lastTabIndex = preferences.getInt(LAST_OPEN_TAB_INDEX, INDEX_PROVIDERS_FRAGMENT);
-        int index = getIntent().getIntExtra(EXTRA_TAB_INDEX, lastTabIndex);
-        mViewPager.setCurrentItem(index);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit().putInt(LAST_OPEN_TAB_INDEX, mViewPager.getCurrentItem()).apply();
-    }
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.global_actions, menu);
-		return true;
+		inflater.inflate(R.menu.autoregister_actions, menu);
+
+        SwitchCompat onOffSwitch = (SwitchCompat) menu.getItem(0).getActionView()
+                .findViewById(R.id.actionbar_switch);
+        onOffSwitch.setChecked(PreferencesHelper.isAutoRegisterEnabled());
+        onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    setEnabled();
+                } else {
+                    setDisabled();
+                }
+            }
+        });
+        return true;
 	}
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-            case android.R.id.home:
-                return super.onOptionsItemSelected(item);
+	private void setEnabled() {
+        Log.d(LOG_TAG, "setEnabled()");
 
-		default:
-			return false;
-		}
-	}
+        if (!PreferencesHelper.hasAutoRegisterRun()) {
+            PreferencesHelper.setAutoRegisterHasRun(true);
+        }
 
-	/**
+        requestSMSPermission(Manifest.permission.READ_SMS, REQUEST_READ_SMS_PERMISSION);
+        requestSMSPermission(Manifest.permission.RECEIVE_SMS, REQUEST_RECEIVE_SMS_PERMISSION);
+
+        PreferencesHelper.setAutoRegisterEnabled(true);
+    }
+
+    private void setDisabled() {
+        Log.d(LOG_TAG, "setDisabled()");
+        PreferencesHelper.setAutoRegisterEnabled(false);
+    }
+
+	private void requestSMSPermission(String permission, int requestCode) {
+        if (ContextCompat.checkSelfPermission(this, permission) !=
+                PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    permission)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            }
+
+        };
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(LOG_TAG, "onRequestPermissionsResult: requestCode = " + requestCode);
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            int messageId = -1;
+            switch (requestCode) {
+                case REQUEST_READ_SMS_PERMISSION:
+                    messageId = R.string.msg_read_sms_granted;
+                    break;
+                case REQUEST_RECEIVE_SMS_PERMISSION:
+                    messageId = R.string.msg_receive_sms_granted;
+                    break;
+            }
+
+            if (messageId > 0) {
+                Toast.makeText(this, getString(messageId), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
 	 * Removes the flag indicating that the app is being run for the first time.
 	 * This is called every time the app is started because the next time won't be the first time
 	 */

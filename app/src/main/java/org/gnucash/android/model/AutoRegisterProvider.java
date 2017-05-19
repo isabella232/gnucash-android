@@ -16,15 +16,21 @@
 
 package org.gnucash.android.model;
 
+import android.database.Cursor;
+
 import com.google.code.regexp.Matcher;
 import com.google.code.regexp.Pattern;
 
+import org.gnucash.android.db.DatabaseSchema;
 import org.gnucash.android.util.AutoRegisterMessage;
+import org.gnucash.android.util.CursorThrowWrapper;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 
 /**
  * Class representing a provider(can be bank, credit card company, etc) configuration.
@@ -54,6 +60,18 @@ public class AutoRegisterProvider extends BaseModel {
         this.mDescription = description;
         this.mPhoneNo = phoneNo;
         this.mVersion = version;
+    }
+
+    public AutoRegisterProvider(Cursor cursor) {
+        super();
+        CursorThrowWrapper wrapper = new CursorThrowWrapper(cursor);
+        setUID(wrapper.getString(DatabaseSchema.CommonColumns.COLUMN_UID));
+        this.mName =  wrapper.getString(AutoRegisterProviderEntry.COLUMN_NAME);
+        this.mDescription = wrapper.getString(AutoRegisterProviderEntry.COLUMN_DESCRIPTION);
+        this.mPhoneNo = wrapper.getString(AutoRegisterProviderEntry.COLUMN_PHONE_NO);
+        this.mVersion = wrapper.getString(AutoRegisterProviderEntry.COLUMN_VERSION);
+        this.mAccountUID = wrapper.getString(AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID);
+        this.mEnabled = wrapper.getBoolean(AutoRegisterProviderEntry.COLUMN_ENABLED);
     }
 
     /**

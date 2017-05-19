@@ -112,6 +112,8 @@ public final class UxArgument {
      */
     public static final String BOOK_UID = "book_uid";
 
+    public static final String AUTOREGISTER_PROVIDER_UID = "autoregister_provider_uid";
+
     //prevent initialization of instances of this class
     private UxArgument(){
         //prevent even the native class from calling the ctor

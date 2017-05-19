@@ -16,6 +16,7 @@
 package org.gnucash.android.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.gnucash.android.app.GnuCashApplication;
@@ -43,6 +44,10 @@ public final class PreferencesHelper {
      * Preference key for saving the last export time
      */
     public static final String PREFERENCE_LAST_EXPORT_TIME_KEY = "last_export_time";
+
+    private static final String AUTOREGISTER_PREF = "autoregister";
+    private static final String AUTOREGISTER_HAS_RUN_KEY = "has_run";
+    private static final String AUTOREGISTER_ENABLED_KEY = "enabled";
 
     /**
      * Set the last export time in UTC time zone of the currently active Book in the application.
@@ -98,5 +103,33 @@ public final class PreferencesHelper {
                                 TimestampHelper.getTimestampFromEpochZero()));
         Log.d(LOG_TAG, "Retrieving '" + utcString + "' as lastExportTime from Android Preferences.");
         return TimestampHelper.getTimestampFromUtcString(utcString);
+    }
+
+    public static boolean hasAutoRegisterRun() {
+        return GnuCashApplication.getAppContext()
+                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .getBoolean(AUTOREGISTER_HAS_RUN_KEY, false);
+    }
+
+    public static void setAutoRegisterHasRun(boolean hasRun) {
+        SharedPreferences.Editor editor = GnuCashApplication.getAppContext()
+                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .edit();
+        editor.putBoolean(AUTOREGISTER_HAS_RUN_KEY, hasRun);
+        editor.apply();
+    }
+
+    public static boolean isAutoRegisterEnabled() {
+        return GnuCashApplication.getAppContext()
+                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .getBoolean(AUTOREGISTER_ENABLED_KEY, false);
+    }
+
+    public static void setAutoRegisterEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = GnuCashApplication.getAppContext()
+                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .edit();
+        editor.putBoolean(AUTOREGISTER_ENABLED_KEY, enabled);
+        editor.apply();
     }
 }
