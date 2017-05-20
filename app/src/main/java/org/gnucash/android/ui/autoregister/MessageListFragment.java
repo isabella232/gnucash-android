@@ -29,35 +29,28 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
-import org.gnucash.android.db.adapter.AccountsDbAdapter;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.ui.common.Refreshable;
 import org.gnucash.android.ui.common.UxArgument;
 import org.gnucash.android.ui.util.CursorRecyclerAdapter;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
-import org.gnucash.android.util.AutoRegisterManager;
 import org.gnucash.android.util.AutoRegisterMessage;
 import org.gnucash.android.util.CursorThrowWrapper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 
 /**
  *
@@ -65,6 +58,9 @@ import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 public class MessageListFragment extends Fragment implements Refreshable,
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MessageListFragment.class.getSimpleName();
+
+    private AutoRegisterProvider mProvider;
+    private AutoRegisterProviderDbAdapter mProviderDbAdapter;
 
     private MessageRecyclerAdapter mMessageRecyclerAdapter;
 
@@ -74,6 +70,16 @@ public class MessageListFragment extends Fragment implements Refreshable,
     public static MessageListFragment newInstance() {
         MessageListFragment fragment = new MessageListFragment();
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        String providerUID = getArguments().getString(UxArgument.AUTOREGISTER_PROVIDER_UID);
+
+        mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
+        mProvider = mProviderDbAdapter.getRecord(providerUID);
     }
 
     @Override
@@ -99,10 +105,7 @@ public class MessageListFragment extends Fragment implements Refreshable,
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-//        String providerUID = getArguments().getString(UxArgument.AUTOREGISTER_PROVIDER_UID);
-        AutoRegisterProvider provider = GnuCashApplication.getAutoRegisterManager().findProvider("1800-1111");
-
-        mMessageRecyclerAdapter = new MessageRecyclerAdapter(null, provider);
+        mMessageRecyclerAdapter = new MessageRecyclerAdapter(null);
         mRecyclerView.setAdapter(mMessageRecyclerAdapter);
     }
 
@@ -143,7 +146,7 @@ public class MessageListFragment extends Fragment implements Refreshable,
         return new CursorLoader(getContext(),
                 Telephony.Sms.Inbox.CONTENT_URI,
                 null,
-                //Telephony.Sms.Inbox.CREATOR + " = '1800-1111'",
+                //Telephony.Sms.Inbox.CREATOR + " REGEXP '" + mProvider.getPhone() + "'",
                 null,
                 null,
                 Telephony.Sms.Inbox.DEFAULT_SORT_ORDER
@@ -164,11 +167,8 @@ public class MessageListFragment extends Fragment implements Refreshable,
     }
 
     private class MessageRecyclerAdapter extends CursorRecyclerAdapter<MessageViewHolder> {
-        private AutoRegisterProvider mProvider;
-
-        public MessageRecyclerAdapter(Cursor cursor, AutoRegisterProvider provider) {
+        public MessageRecyclerAdapter(Cursor cursor) {
             super(cursor);
-            mProvider = provider;
         }
 
         @Override

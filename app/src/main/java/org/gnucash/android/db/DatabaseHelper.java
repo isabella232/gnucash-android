@@ -224,17 +224,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + createUpdatedAtTrigger(RecurrenceEntry.TABLE_NAME);
 
     private static final String AUTOREGISTER_PROVIDER_TABLE_CREATE = "CREATE TABLE " + AutoRegisterProviderEntry.TABLE_NAME + " ("
-            + AutoRegisterProviderEntry._ID                + " integer primary key autoincrement, "
-            + AutoRegisterProviderEntry.COLUMN_UID         + " varchar(255) not null UNIQUE, "
-            + AutoRegisterProviderEntry.COLUMN_NAME        + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_DESCRIPTION + " varchar(255), "
-            + AutoRegisterProviderEntry.COLUMN_PHONE_NO    + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_VERSION     + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_ENABLED     + " tinyint default 1, "
-            + AutoRegisterProviderEntry.COLUMN_LAST_SYNC   + " timestamp, "
-            + AutoRegisterProviderEntry.COLUMN_CREATED_AT  + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
-            + AutoRegisterProviderEntry.COLUMN_MODIFIED_AT + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterProviderEntry._ID                  + " integer primary key autoincrement, "
+            + AutoRegisterProviderEntry.COLUMN_UID           + " varchar(255) not null UNIQUE, "
+            + AutoRegisterProviderEntry.COLUMN_NAME          + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_VERSION       + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_PHONE         + " varchar(255) not null, "
+            + AutoRegisterProviderEntry.COLUMN_PATTERN       + " text not null, "
+            + AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID   + " varchar(255), "
+            + AutoRegisterProviderEntry.COLUMN_ENABLED       + " tinyint default 1, "
+            + AutoRegisterProviderEntry.COLUMN_LAST_SYNC     + " timestamp, "
+            + AutoRegisterProviderEntry.COLUMN_CREATED_AT    + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterProviderEntry.COLUMN_MODIFIED_AT   + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
             + "FOREIGN KEY (" 	+ AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID + ") REFERENCES " + AccountEntry.TABLE_NAME + " (" + AccountEntry.COLUMN_UID + ") ON DELETE CASCADE "
             + ");" + createUpdatedAtTrigger(AutoRegisterProviderEntry.TABLE_NAME);
 
@@ -379,6 +379,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             MigrationHelper.importCommodities(db);
         } catch (SAXException | ParserConfigurationException | IOException e) {
             Log.e(LOG_TAG, "Error loading currencies into the database");
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        try {
+            MigrationHelper.importAutoRegisters(db);
+        } catch (SAXException | ParserConfigurationException | IOException e) {
+            Log.e(LOG_TAG, "Error loading auto-registers into the database");
             e.printStackTrace();
             throw new RuntimeException(e);
         }

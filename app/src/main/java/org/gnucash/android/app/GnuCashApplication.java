@@ -55,7 +55,6 @@ import org.gnucash.android.model.Commodity;
 import org.gnucash.android.model.Money;
 import org.gnucash.android.service.ScheduledActionService;
 import org.gnucash.android.ui.settings.PreferenceActivity;
-import org.gnucash.android.util.AutoRegisterManager;
 
 import java.util.Currency;
 import java.util.Locale;
@@ -107,7 +106,6 @@ public class GnuCashApplication extends MultiDexApplication {
     private static BooksDbAdapter mBooksDbAdapter;
     private static DatabaseHelper mDbHelper;
 
-    private static AutoRegisterManager mAutoRegisterManager;
     private static AutoRegisterProviderDbAdapter mAutoRegisterProviderDbAdapter;
 
     /**
@@ -137,8 +135,6 @@ public class GnuCashApplication extends MultiDexApplication {
 
         initializeDatabaseAdapters();
         setDefaultCurrencyCode(getDefaultCurrencyCode());
-
-        mAutoRegisterManager = new AutoRegisterManager();
 
         StethoUtils.install(this);
     }
@@ -172,7 +168,7 @@ public class GnuCashApplication extends MultiDexApplication {
         mCommoditiesDbAdapter       = new CommoditiesDbAdapter(mainDb);
         mBudgetAmountsDbAdapter     = new BudgetAmountsDbAdapter(mainDb);
         mBudgetsDbAdapter           = new BudgetsDbAdapter(mainDb, mBudgetAmountsDbAdapter, mRecurrenceDbAdapter);
-        mAutoRegisterProviderDbAdapter = new AutoRegisterProviderDbAdapter(mainDb, mAccountsDbAdapter);
+        mAutoRegisterProviderDbAdapter = new AutoRegisterProviderDbAdapter(mainDb);
     }
 
     public static AccountsDbAdapter getAccountsDbAdapter() {
@@ -217,10 +213,6 @@ public class GnuCashApplication extends MultiDexApplication {
 
     public static AutoRegisterProviderDbAdapter getAutoRegisterProviderDbAdapter(){
         return mAutoRegisterProviderDbAdapter;
-    }
-
-    public static AutoRegisterManager getAutoRegisterManager() {
-        return mAutoRegisterManager;
     }
 
     /**

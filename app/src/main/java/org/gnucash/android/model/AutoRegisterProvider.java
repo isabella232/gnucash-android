@@ -16,21 +16,13 @@
 
 package org.gnucash.android.model;
 
-import android.database.Cursor;
-
 import com.google.code.regexp.Matcher;
 import com.google.code.regexp.Pattern;
 
-import org.gnucash.android.db.DatabaseSchema;
 import org.gnucash.android.util.AutoRegisterMessage;
-import org.gnucash.android.util.CursorThrowWrapper;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 
 /**
  * Class representing a provider(can be bank, credit card company, etc) configuration.
@@ -40,47 +32,22 @@ import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
  */
 public class AutoRegisterProvider extends BaseModel {
     private String mName;
-    private String mDescription;
-    private String mPhoneNo;
     private String mVersion;
+    private String mPhone;
+    private Pattern mPattern;
     private String mAccountUID;
-    private boolean mEnabled = true;
+    private boolean mEnabled;
     private Timestamp mLastSync;
-
-    private List<Pattern> mPatterns = new ArrayList<>();
 
     /**
      * Create a new book instance
      *
      */
-    public AutoRegisterProvider(String name, String description, String phoneNo, String version){
+    public AutoRegisterProvider(String name, String version) {
         super();
         setUID(generateUID());
         this.mName = name;
-        this.mDescription = description;
-        this.mPhoneNo = phoneNo;
         this.mVersion = version;
-    }
-
-    public AutoRegisterProvider(Cursor cursor) {
-        super();
-        CursorThrowWrapper wrapper = new CursorThrowWrapper(cursor);
-        setUID(wrapper.getString(DatabaseSchema.CommonColumns.COLUMN_UID));
-        this.mName =  wrapper.getString(AutoRegisterProviderEntry.COLUMN_NAME);
-        this.mDescription = wrapper.getString(AutoRegisterProviderEntry.COLUMN_DESCRIPTION);
-        this.mPhoneNo = wrapper.getString(AutoRegisterProviderEntry.COLUMN_PHONE_NO);
-        this.mVersion = wrapper.getString(AutoRegisterProviderEntry.COLUMN_VERSION);
-        this.mAccountUID = wrapper.getString(AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID);
-        this.mEnabled = wrapper.getBoolean(AutoRegisterProviderEntry.COLUMN_ENABLED);
-    }
-
-    /**
-     * Adds new message parse pattern.
-     *
-     * @param pattern
-     */
-    public void addPattern(Pattern pattern) {
-        mPatterns.add(pattern);
     }
 
     public String getName() {
@@ -91,22 +58,6 @@ public class AutoRegisterProvider extends BaseModel {
         mName = name;
     }
 
-    public String getDescription() {
-        return mDescription;
-    }
-
-    public void setDescription(String description) {
-        mDescription = description;
-    }
-
-    public String getPhoneNo() {
-        return mPhoneNo;
-    }
-
-    public void setPhoneNo(String phoneNo) {
-        mPhoneNo = phoneNo;
-    }
-
     public String getVersion() {
         return mVersion;
     }
@@ -115,20 +66,36 @@ public class AutoRegisterProvider extends BaseModel {
         mVersion = version;
     }
 
-    public String getAccountUID() {
-        return mAccountUID;
+    public String getPhone() {
+        return mPhone;
+    }
+
+    public void setPhone(String phone) {
+        mPhone = phone;
+    }
+
+    public Pattern getPattern() {
+        return mPattern;
+    }
+
+    public void setPattern(Pattern pattern) {
+        mPattern = pattern;
     }
 
     public void setAccountUID(String accountUID) {
         mAccountUID = accountUID;
     }
 
-    public boolean isEnabled() {
-        return mEnabled;
-    }
-
     public void setEnabled(boolean enabled) {
         mEnabled = enabled;
+    }
+
+    public String getAccountUID() {
+        return mAccountUID;
+    }
+
+    public boolean isEnabled() {
+        return mEnabled;
     }
 
     public Timestamp getLastSync() {
@@ -146,17 +113,10 @@ public class AutoRegisterProvider extends BaseModel {
      * @return
      */
     public AutoRegisterMessage parseMessage(String text) {
-        boolean found = false;
-        Matcher matcher = null;
-        for (Pattern p : mPatterns) {
-            matcher = p.matcher(text);
-            if (matcher.find()) {
-                found = true;
-                break;
-            }
+        Matcher matcher = mPattern.matcher(text);
+        if (!matcher.find()) {
+            return null;
         }
-
-        if (!found) return null;
 
         AutoRegisterMessage message = new AutoRegisterMessage();
         for (Map.Entry<String, String> entry : matcher.namedGroups().entrySet()) {
@@ -164,14 +124,5 @@ public class AutoRegisterProvider extends BaseModel {
         }
 
         return message;
-    }
-
-    @Override
-    public String toString() {
-        return "AutoRegisterProvider{" +
-                "mName='" + mName + '\'' +
-                ", mPhoneNo='" + mPhoneNo + '\'' +
-                ", mDescription='" + mDescription + '\'' +
-                '}';
     }
 }

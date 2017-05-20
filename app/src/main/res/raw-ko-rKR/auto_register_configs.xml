@@ -14,18 +14,20 @@
         <component name="currency" value="[A-Z]{3}" />
     </components>
     <providers>
-        <provider name="hanacard" description="하나카드" phoneNo="1800-1111" version="201705_01">
-            <pattern>
+        <provider name="하나카드" version="201705_01">
+            <phone>1800-1111</phone>
+            <message>
                 ({cardno}) {holder}님 {instalment} {amount}원 {date} {time} 누적 {accum}원 {vendor}
-            </pattern>
-            <pattern>
+            </message>
+            <message>
                 ({cardno}){holder}님 {date} {time} 해외승인 {currency}{amount} {vendor} {approvalno}
-            </pattern>
+            </message>
         </provider>
-        <provider name="shinhancard" description="신한카드" phoneNo="1544-7000" version="201705_01">
-            <pattern>
+        <provider name="신한카드" version="201705_01">
+            <phone>1544-7000</phone>
+            <message>
                 {holder}({cardno}) {date} {time} ({instalment}){amount}원 {vendor} 누적{accum}원
-            </pattern>
+            </message>
         </provider>
     </providers>
 </auto_register>

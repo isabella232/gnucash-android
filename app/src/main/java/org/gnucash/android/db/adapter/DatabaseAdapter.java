@@ -421,8 +421,20 @@ public abstract class DatabaseAdapter<Model extends BaseModel> {
      * @return List of records in the database
      */
     public List<Model> getAllRecords(){
+        return getAllRecords(null, null, null);
+    }
+
+    /**
+     * Returns all the records with specified conditions.
+     *
+     * @param where
+     * @param whereArgs
+     * @param orderBy
+     * @return
+     */
+    public List<Model> getAllRecords(String where, String[] whereArgs, String orderBy) {
         List<Model> modelRecords = new ArrayList<>();
-        Cursor c = fetchAllRecords();
+        Cursor c = fetchAllRecords(where, whereArgs, orderBy);
         try {
             while (c.moveToNext()) {
                 modelRecords.add(buildModelInstance(c));

@@ -173,7 +173,11 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
         @Override
         public Cursor loadInBackground() {
             AutoRegisterProviderDbAdapter adapter = AutoRegisterProviderDbAdapter.getInstance();
-            Cursor cursor = adapter.fetchAllRecords();
+            Cursor cursor = adapter.fetchAllRecords(
+                    AutoRegisterProviderEntry.COLUMN_ENABLED + " = ?",
+                    new String[] { "1" },
+                    null
+            );
 
             if (cursor != null)
                 registerContentObserver(cursor);
@@ -196,24 +200,17 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
 
         @Override
         public void onBindViewHolderCursor(final ProviderViewHolder holder, final Cursor cursor) {
-            AutoRegisterProvider provider = new AutoRegisterProvider(cursor);
+            AutoRegisterProvider provider = mProviderDbAdapter.buildModelInstance(cursor);
 
             holder.primaryText.setText(
                     new StringBuilder()
-                        .append(provider.getDescription()).append(" > ")
+                        .append(provider.getName()).append(" > ")
                         .append(mAccountsDbAdapter.getAccountName(provider.getAccountUID()))
                         .toString()
             );
-            holder.secondaryText.setText(provider.getPhoneNo());
+            holder.secondaryText.setText(provider.getPhone());
 
             final String uid = provider.getUID();
-            holder.providerOnoff.setChecked(provider.isEnabled());
-            holder.providerOnoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    mProviderDbAdapter.setEnabled(uid, b);
-                }
-            });
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

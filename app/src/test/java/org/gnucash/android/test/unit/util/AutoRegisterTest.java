@@ -6,7 +6,7 @@ import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.test.unit.testutil.GnucashTestRunner;
 import org.gnucash.android.test.unit.testutil.ShadowCrashlytics;
 import org.gnucash.android.test.unit.testutil.ShadowUserVoice;
-import org.gnucash.android.util.AutoRegisterManager;
+import org.gnucash.android.util.AutoRegisterUtil;
 import org.gnucash.android.util.AutoRegisterMessage;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         shadows = {ShadowCrashlytics.class, ShadowUserVoice.class})
 public class AutoRegisterTest {
     private Locale mPreviousLocale;
-    AutoRegisterManager manager;
+    AutoRegisterUtil manager;
 
     @Before
     public void setUp() throws Exception {

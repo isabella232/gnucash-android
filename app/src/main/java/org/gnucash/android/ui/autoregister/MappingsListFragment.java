@@ -38,7 +38,7 @@ import org.gnucash.android.R;
 import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
-import org.gnucash.android.util.AutoRegisterManager;
+import org.gnucash.android.util.AutoRegisterUtil;
 
 import java.util.List;
 
@@ -89,10 +89,12 @@ public class MappingsListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        AutoRegisterManager manager = GnuCashApplication.getAutoRegisterManager();
+/*
+        AutoRegisterUtil manager = GnuCashApplication.getAutoRegisterManager();
         mProviderAdapter = new ProviderAdapter(manager.getProviders());
 
         mRecyclerView.setAdapter(mProviderAdapter);
+*/
     }
 
     @Override
@@ -124,9 +126,10 @@ public class MappingsListFragment extends Fragment {
         public void onBindViewHolder(ProviderViewHolder holder, int position) {
             AutoRegisterProvider p = mProviders.get(position);
 
-            String id = p.getName();
-            holder.providerName.setText(p.getDescription());
+            holder.providerName.setText(p.getName());
+/*
             holder.description.setText(p.getPhoneNo());
+*/
 
 /*
             holder.itemView.setOnClickListener(new View.OnClickListener() {

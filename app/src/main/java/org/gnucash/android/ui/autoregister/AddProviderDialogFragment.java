@@ -1,10 +1,12 @@
 package org.gnucash.android.ui.autoregister;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +24,7 @@ import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.model.AccountType;
 import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.ui.common.Refreshable;
-import org.gnucash.android.util.AutoRegisterManager;
+import org.gnucash.android.util.AutoRegisterUtil;
 import org.gnucash.android.util.QualifiedAccountNameCursorAdapter;
 
 import butterknife.BindView;
@@ -80,18 +82,18 @@ public class AddProviderDialogFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
 
         // Initialize provider spinner
-        AutoRegisterManager manager = GnuCashApplication.getAutoRegisterManager();
+        AutoRegisterProviderDbAdapter autoRegisterProviderDbAdapter =
+                AutoRegisterProviderDbAdapter.getInstance();
+
         SpinnerAdapter providerAdapter = new ArrayAdapter<AutoRegisterProvider>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item,
-                manager.getProviders()) {
+                autoRegisterProviderDbAdapter.getDisabledProviders()) {
 
             private View setLabel(int position, View v) {
                 AutoRegisterProvider p = getItem(position);
-                String label = new StringBuilder(p.getDescription()).
-                        append(" (").append(p.getPhoneNo()).append(')').toString();
 
                 TextView textView = (TextView) v.findViewById(android.R.id.text1);
-                textView.setText(label);
+                textView.setText(p.getName());
 
                 return v;
             }
@@ -152,8 +154,7 @@ public class AddProviderDialogFragment extends DialogFragment {
                 AutoRegisterProvider provider = (AutoRegisterProvider) mProviderSpinner.getSelectedItem();
                 String accountUID = accountsDbAdapter.getUID(mTargetAccountSpinner.getSelectedItemId());
 
-                provider.setAccountUID(accountUID);
-                providerDbAdapter.addRecord(provider);
+                providerDbAdapter.setEnabled(provider.getUID(), accountUID);
 
                 ((Refreshable) getTargetFragment()).refresh();
                 dismiss();

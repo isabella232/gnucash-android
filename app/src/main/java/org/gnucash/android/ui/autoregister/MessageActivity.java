@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import org.gnucash.android.R;
 import org.gnucash.android.ui.common.BaseDrawerActivity;
 import org.gnucash.android.ui.common.Refreshable;
+import org.gnucash.android.ui.common.UxArgument;
 
 import butterknife.BindView;
 
@@ -47,8 +48,7 @@ public class MessageActivity extends BaseDrawerActivity {
      */
     protected static final String LOG_TAG = MessageActivity.class.getSimpleName();
 
-    private static final int REQUEST_READ_SMS_PERMISSION = 1001;
-    private static final int REQUEST_RECEIVE_SMS_PERMISSION = 1002;
+    private String mProviderUID;
 
     /**
      * Number of pages to show
@@ -93,6 +93,7 @@ public class MessageActivity extends BaseDrawerActivity {
                 switch (i) {
                     case INDEX_UNPROCESSED_FRAGMENT:
                         currentFragment = MessageListFragment.newInstance();
+                        currentFragment.setArguments(getIntent().getExtras());
                         break;
 
                     case INDEX_MAPPINGS_FRAGMENT:

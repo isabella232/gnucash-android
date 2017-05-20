@@ -279,9 +279,9 @@ public class DatabaseSchema {
         public static final String TABLE_NAME           = "autoregister_providers";
 
         public static final String COLUMN_NAME          = "name";
-        public static final String COLUMN_DESCRIPTION   = "description";
-        public static final String COLUMN_PHONE_NO      = "phone_no";
+        public static final String COLUMN_PHONE         = "phone";
         public static final String COLUMN_VERSION       = "version";
+        public static final String COLUMN_PATTERN       = "pattern";
         public static final String COLUMN_ACCOUNT_UID   = "account_uid";
         public static final String COLUMN_ENABLED       = "is_enabled";
         public static final String COLUMN_REG_COUNT     = "reg_count";
