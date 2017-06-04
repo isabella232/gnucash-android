@@ -35,6 +35,10 @@ import java.lang.reflect.Method;
 import javax.xml.parsers.ParserConfigurationException;
 
 import static org.gnucash.android.db.DatabaseSchema.AccountEntry;
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterEntry;
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterInboxEntry;
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterKeywordEntry;
+import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 import static org.gnucash.android.db.DatabaseSchema.BudgetAmountEntry;
 import static org.gnucash.android.db.DatabaseSchema.BudgetEntry;
 import static org.gnucash.android.db.DatabaseSchema.CommodityEntry;
@@ -44,7 +48,6 @@ import static org.gnucash.android.db.DatabaseSchema.RecurrenceEntry;
 import static org.gnucash.android.db.DatabaseSchema.ScheduledActionEntry;
 import static org.gnucash.android.db.DatabaseSchema.SplitEntry;
 import static org.gnucash.android.db.DatabaseSchema.TransactionEntry;
-import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
 
 /**
  * Helper class for managing the SQLite database.
@@ -223,20 +226,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + RecurrenceEntry.COLUMN_MODIFIED_AT    + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP); "
             + createUpdatedAtTrigger(RecurrenceEntry.TABLE_NAME);
 
+    private static final String AUTOREGISTER_LEDGER_TABLE_CREATE = "CREATE TABLE " + AutoRegisterEntry.TABLE_NAME + " ("
+            + AutoRegisterEntry._ID                    + " integer primary key autoincrement, "
+            + AutoRegisterEntry.COLUMN_UID             + " varchar(255) not null UNIQUE, "
+            + AutoRegisterEntry.COLUMN_INBOX_URI       + " varchar(255) not null UNIQUE, "
+            + AutoRegisterEntry.COLUMN_TRANSACTION_UID + " varchar(255) not null UNIQUE, "
+            + AutoRegisterEntry.COLUMN_CREATED_AT      + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterEntry.COLUMN_MODIFIED_AT     + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + "FOREIGN KEY (" 	+ AutoRegisterEntry.COLUMN_TRANSACTION_UID + ") REFERENCES "
+            + TransactionEntry.TABLE_NAME + " (" + TransactionEntry.COLUMN_UID + ") ON DELETE CASCADE "
+            + ");" + createUpdatedAtTrigger(AutoRegisterEntry.TABLE_NAME);
+
+    private static final String AUTOREGISTER_INBOX_TABLE_CREATE = "CREATE TABLE " + AutoRegisterInboxEntry.TABLE_NAME + " ("
+            + AutoRegisterInboxEntry._ID                      + " integer primary key autoincrement, "
+            + AutoRegisterInboxEntry.COLUMN_UID               + " varchar(255) not null unique, "
+            + AutoRegisterInboxEntry.COLUMN_MESSAGE_TYPE      + " varchar(3) not null, "
+            + AutoRegisterInboxEntry.COLUMN_MESSAGE_ID        + " integer not null unique, "
+            + AutoRegisterInboxEntry.COLUMN_MESSAGE_TIMESTAMP + " timestamp not null, "
+            + AutoRegisterInboxEntry.COLUMN_MESSAGE_ADDRESS   + " varchar(100) not null, "
+            + AutoRegisterInboxEntry.COLUMN_MESSAGE_BODY      + " TEXT not null, "
+            + AutoRegisterInboxEntry.COLUMN_PROVIDER_UID      + " varchar(255), "
+            + AutoRegisterInboxEntry.COLUMN_IS_PARSED         + " tinyint default 0, "
+            + AutoRegisterInboxEntry.COLUMN_CURRENCY          + " varchar(3), "
+            + AutoRegisterInboxEntry.COLUMN_VALUE_NUM         + " integer, "
+            + AutoRegisterInboxEntry.COLUMN_VALUE_DENOM       + " integer, "
+            + AutoRegisterInboxEntry.COLUMN_MEMO              + " text, "
+            + AutoRegisterInboxEntry.COLUMN_IS_COMPLETED      + " tinyint default 0, "
+            + AutoRegisterInboxEntry.COLUMN_TRANSACTION_UID   + " varchar(255) UNIQUE, "
+            + AutoRegisterInboxEntry.COLUMN_CREATED_AT        + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterInboxEntry.COLUMN_MODIFIED_AT       + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + "FOREIGN KEY (" 	+ AutoRegisterInboxEntry.COLUMN_PROVIDER_UID + ") REFERENCES "
+            + AutoRegisterProviderEntry.TABLE_NAME + " (" + AutoRegisterProviderEntry.COLUMN_UID + ") "
+            + "FOREIGN KEY (" 	+ AutoRegisterInboxEntry.COLUMN_TRANSACTION_UID + ") REFERENCES "
+            + TransactionEntry.TABLE_NAME + " (" + TransactionEntry.COLUMN_UID + ") "
+            + ");";
+
     private static final String AUTOREGISTER_PROVIDER_TABLE_CREATE = "CREATE TABLE " + AutoRegisterProviderEntry.TABLE_NAME + " ("
             + AutoRegisterProviderEntry._ID                  + " integer primary key autoincrement, "
             + AutoRegisterProviderEntry.COLUMN_UID           + " varchar(255) not null UNIQUE, "
             + AutoRegisterProviderEntry.COLUMN_NAME          + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_VERSION       + " varchar(255) not null, "
             + AutoRegisterProviderEntry.COLUMN_PHONE         + " varchar(255) not null, "
-            + AutoRegisterProviderEntry.COLUMN_PATTERN       + " text not null, "
+            + AutoRegisterProviderEntry.COLUMN_PATTERNS      + " text not null, "
+            + AutoRegisterProviderEntry.COLUMN_GLOBS         + " text not null, "
             + AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID   + " varchar(255), "
-            + AutoRegisterProviderEntry.COLUMN_ENABLED       + " tinyint default 1, "
+            + AutoRegisterProviderEntry.COLUMN_ICON_NAME     + " text(255), "
+            + AutoRegisterProviderEntry.COLUMN_ACTIVE + " tinyint default 1, "
             + AutoRegisterProviderEntry.COLUMN_LAST_SYNC     + " timestamp, "
             + AutoRegisterProviderEntry.COLUMN_CREATED_AT    + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
             + AutoRegisterProviderEntry.COLUMN_MODIFIED_AT   + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
             + "FOREIGN KEY (" 	+ AutoRegisterProviderEntry.COLUMN_ACCOUNT_UID + ") REFERENCES " + AccountEntry.TABLE_NAME + " (" + AccountEntry.COLUMN_UID + ") ON DELETE CASCADE "
             + ");" + createUpdatedAtTrigger(AutoRegisterProviderEntry.TABLE_NAME);
+
+    private static final String AUTOREGISTER_KEYWORD_TABLE_CREATE = "CREATE TABLE " + AutoRegisterKeywordEntry.TABLE_NAME + " ("
+            + AutoRegisterKeywordEntry._ID                  + " integer primary key autoincrement, "
+            + AutoRegisterKeywordEntry.COLUMN_UID           + " varchar(255) not null UNIQUE, "
+            + AutoRegisterKeywordEntry.COLUMN_KEYWORD       + " varchar(255) not null, "
+            + AutoRegisterKeywordEntry.COLUMN_PRIORITY      + " integer default 1, "
+            + AutoRegisterKeywordEntry.COLUMN_ACCOUNT_UID   + " varchar(255) not null, "
+            + AutoRegisterKeywordEntry.COLUMN_CREATED_AT    + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + AutoRegisterKeywordEntry.COLUMN_MODIFIED_AT   + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+            + "FOREIGN KEY (" 	+ AutoRegisterKeywordEntry.COLUMN_ACCOUNT_UID + ") REFERENCES " + AccountEntry.TABLE_NAME + " (" + AccountEntry.COLUMN_UID + ") ON DELETE CASCADE "
+            + ");" + createUpdatedAtTrigger(AutoRegisterKeywordEntry.TABLE_NAME);
 
     /**
 	 * Constructor
@@ -266,7 +316,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		createDatabaseTables(db);
-
 	}
 
     @Override
@@ -332,7 +381,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(RECURRENCE_TABLE_CREATE);
         db.execSQL(BUDGETS_TABLE_CREATE);
         db.execSQL(BUDGET_AMOUNTS_TABLE_CREATE);
+        db.execSQL(AUTOREGISTER_INBOX_TABLE_CREATE);
         db.execSQL(AUTOREGISTER_PROVIDER_TABLE_CREATE);
+        db.execSQL(AUTOREGISTER_KEYWORD_TABLE_CREATE);
+        db.execSQL(AUTOREGISTER_LEDGER_TABLE_CREATE);
 
         String createAccountUidIndex = "CREATE UNIQUE INDEX '" + AccountEntry.INDEX_UID + "' ON "
                 + AccountEntry.TABLE_NAME + "(" + AccountEntry.COLUMN_UID + ")";
@@ -361,8 +413,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createRecurrenceUidIndex = "CREATE UNIQUE INDEX '" + RecurrenceEntry.INDEX_UID
                 + "' ON " + RecurrenceEntry.TABLE_NAME + "(" + RecurrenceEntry.COLUMN_UID + ")";
 
+        String createAutoRegisterUidIndex = "CREATE UNIQUE INDEX '" + AutoRegisterEntry.INDEX_UID
+                + "' ON " + AutoRegisterEntry.TABLE_NAME + "(" + AutoRegisterEntry.COLUMN_UID + ")";
+
+        String createAutoRegisterInboxUidIndex = "CREATE UNIQUE INDEX '" + AutoRegisterInboxEntry.INDEX_UID
+                + "' ON " + AutoRegisterInboxEntry.TABLE_NAME + "(" + AutoRegisterInboxEntry.COLUMN_UID + ")";
+
+        String createAutoRegisterInboxMessageTimestampIndex = "CREATE INDEX '" + AutoRegisterInboxEntry.INDEX_MESSAGE_TIMESTAMP
+                + "' ON " + AutoRegisterInboxEntry.TABLE_NAME + "(" + AutoRegisterInboxEntry.COLUMN_MESSAGE_TIMESTAMP + ")";
+
         String createAutoRegisterProviderUidIndex = "CREATE UNIQUE INDEX '" + AutoRegisterProviderEntry.INDEX_UID
                 + "' ON " + AutoRegisterProviderEntry.TABLE_NAME + "(" + AutoRegisterProviderEntry.COLUMN_UID + ")";
+
+        String createAutoRegisterKeywordUidIndex = "CREATE UNIQUE INDEX '" + AutoRegisterKeywordEntry.INDEX_UID
+                + "' ON " + AutoRegisterKeywordEntry.TABLE_NAME + "(" + AutoRegisterKeywordEntry.COLUMN_UID + ")";
 
         db.execSQL(createAccountUidIndex);
         db.execSQL(createTransactionUidIndex);
@@ -373,20 +437,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBudgetUidIndex);
         db.execSQL(createRecurrenceUidIndex);
         db.execSQL(createBudgetAmountUidIndex);
+        db.execSQL(createAutoRegisterUidIndex);
+        db.execSQL(createAutoRegisterInboxUidIndex);
+        db.execSQL(createAutoRegisterInboxMessageTimestampIndex);
         db.execSQL(createAutoRegisterProviderUidIndex);
+        db.execSQL(createAutoRegisterKeywordUidIndex);
 
         try {
             MigrationHelper.importCommodities(db);
         } catch (SAXException | ParserConfigurationException | IOException e) {
             Log.e(LOG_TAG, "Error loading currencies into the database");
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
-        try {
-            MigrationHelper.importAutoRegisters(db);
-        } catch (SAXException | ParserConfigurationException | IOException e) {
-            Log.e(LOG_TAG, "Error loading auto-registers into the database");
             e.printStackTrace();
             throw new RuntimeException(e);
         }

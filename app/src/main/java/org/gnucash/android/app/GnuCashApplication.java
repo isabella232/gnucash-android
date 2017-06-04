@@ -41,6 +41,9 @@ import org.gnucash.android.R;
 import org.gnucash.android.db.BookDbHelper;
 import org.gnucash.android.db.DatabaseHelper;
 import org.gnucash.android.db.adapter.AccountsDbAdapter;
+import org.gnucash.android.db.adapter.AutoRegisterInboxDbAdapter;
+import org.gnucash.android.db.adapter.AutoRegisterKeywordDbAdapter;
+import org.gnucash.android.db.adapter.AutoRegisterDbAdapter;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.db.adapter.BooksDbAdapter;
 import org.gnucash.android.db.adapter.BudgetAmountsDbAdapter;
@@ -106,7 +109,10 @@ public class GnuCashApplication extends MultiDexApplication {
     private static BooksDbAdapter mBooksDbAdapter;
     private static DatabaseHelper mDbHelper;
 
+    private static AutoRegisterDbAdapter mAutoRegisterDbAdapter;
+    private static AutoRegisterInboxDbAdapter mAutoRegisterInboxDbAdapter;
     private static AutoRegisterProviderDbAdapter mAutoRegisterProviderDbAdapter;
+    private static AutoRegisterKeywordDbAdapter mAutoRegisterKeywordDbAdapter;
 
     /**
      * Returns darker version of specified <code>color</code>.
@@ -168,7 +174,11 @@ public class GnuCashApplication extends MultiDexApplication {
         mCommoditiesDbAdapter       = new CommoditiesDbAdapter(mainDb);
         mBudgetAmountsDbAdapter     = new BudgetAmountsDbAdapter(mainDb);
         mBudgetsDbAdapter           = new BudgetsDbAdapter(mainDb, mBudgetAmountsDbAdapter, mRecurrenceDbAdapter);
-        mAutoRegisterProviderDbAdapter = new AutoRegisterProviderDbAdapter(mainDb);
+
+        mAutoRegisterDbAdapter         = new AutoRegisterDbAdapter(mainDb);
+        mAutoRegisterProviderDbAdapter = new AutoRegisterProviderDbAdapter(mainDb, mAccountsDbAdapter);
+        mAutoRegisterKeywordDbAdapter  = new AutoRegisterKeywordDbAdapter(mainDb, mAccountsDbAdapter);
+        mAutoRegisterInboxDbAdapter    = new AutoRegisterInboxDbAdapter(mainDb, mAutoRegisterProviderDbAdapter, mAutoRegisterKeywordDbAdapter);
     }
 
     public static AccountsDbAdapter getAccountsDbAdapter() {
@@ -211,8 +221,20 @@ public class GnuCashApplication extends MultiDexApplication {
         return mBooksDbAdapter;
     }
 
+    public static AutoRegisterDbAdapter getAutoRegisterMessageDbAdapter(){
+        return mAutoRegisterDbAdapter;
+    }
+
+    public static AutoRegisterInboxDbAdapter getAutoRegisterInboxDbAdapter(){
+        return mAutoRegisterInboxDbAdapter;
+    }
+
     public static AutoRegisterProviderDbAdapter getAutoRegisterProviderDbAdapter(){
         return mAutoRegisterProviderDbAdapter;
+    }
+
+    public static AutoRegisterKeywordDbAdapter getAutoRegisterKeywordDbAdapter(){
+        return mAutoRegisterKeywordDbAdapter;
     }
 
     /**

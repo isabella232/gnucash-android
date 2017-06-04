@@ -40,15 +40,23 @@
               android:layout_alignParentLeft="true"
               android:layout_alignParentStart="true"/>
 
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/edge_padding"
+            android:layout_toRightOf="@id/account_color_strip"/>
+
         <include
             layout="@layout/list_item_2_lines"
             android:paddingTop="6dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_toRightOf="@id/account_color_strip"
+            android:layout_toRightOf="@id/icon"
             android:layout_marginTop="@dimen/edge_padding"
-            android:layout_marginLeft="@dimen/edge_padding"
-            android:layout_marginRight="@dimen/edge_padding"/>
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="@dimen/edge_padding"
+            android:id="@+id/include"/>
 
         <ImageView
             android:id="@+id/options_menu"
@@ -65,31 +73,16 @@
             tools:ignore="ContentDescription" />
 
         <ImageView
-            android:id="@+id/create_transaction"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@id/options_menu"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="20dp"
-            android:paddingBottom="4dp"
-            android:paddingLeft="24dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_add_black_24dp"
-            tools:ignore="ContentDescription" />
-
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/provider_onoff"
+            android:id="@+id/delete_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentRight="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="14dp"
+            android:paddingTop="6dp"
             android:paddingRight="6dp"
             android:paddingLeft="6dp"
-            android:paddingBottom="14dp"
-            android:scaleX="0.6"
-            android:scaleY="0.6"
+            android:paddingBottom="22dp"
+            android:src="@drawable/ic_clear_black_24dp"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -105,24 +98,6 @@
             android:layout_toLeftOf="@id/create_transaction"
             android:layout_marginRight="@dimen/edge_padding"/>
 
-        <ProgressBar
-            android:id="@+id/budget_indicator"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:progressDrawable="@drawable/budget_progress_indicator"
-            android:layout_width="100dp"
-            android:layout_height="8dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="@dimen/strip_width"
-            android:layout_marginStart="@dimen/strip_width"
-            android:max="100"
-            tools:progress="50"
-            android:indeterminate="false"
-            android:paddingBottom="4dp"
-            android:background="@android:color/transparent"
-            android:visibility="gone"
-            android:layout_alignBottom="@id/options_menu"
-            android:layout_marginRight="@dimen/edge_padding"/>
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

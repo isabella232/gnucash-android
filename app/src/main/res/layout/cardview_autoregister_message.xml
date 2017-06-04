@@ -39,15 +39,35 @@
               android:layout_alignParentLeft="true"
               android:layout_alignParentStart="true"/>
 
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_marginTop="@dimen/edge_padding"
+            android:layout_marginLeft="@dimen/edge_padding"
+            android:layout_marginRight="@dimen/edge_padding"
+            android:layout_marginBottom="0dp"
+            android:layout_toRightOf="@id/account_color_strip"/>
+
+        <TextView
+            android:id="@+id/smallLabel"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/icon"
+            android:layout_below="@id/icon"
+            android:gravity="center"
+            android:textSize="10sp"
+            tools:text="1234"/>
+
         <include android:id="@+id/list_item_2_lines"
                  layout="@layout/list_item_2_lines"
                  android:paddingTop="6dp"
                  android:layout_height="wrap_content"
                  android:layout_width="wrap_content"
-                 android:layout_toRightOf="@id/account_color_strip"
+                 android:layout_toRightOf="@id/icon"
                  android:layout_marginTop="6dp"
                  android:layout_marginBottom="@dimen/dialog_padding"
-                 android:layout_marginLeft="@dimen/dialog_padding"
+                 android:layout_marginLeft="0dp"
                  android:layout_marginRight="52dp"/>
 
         <ImageView
@@ -65,7 +85,7 @@
             tools:ignore="ContentDescription" />
 
         <ImageView
-            android:id="@+id/edit_transaction"
+            android:id="@+id/create_transaction"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentRight="true"
@@ -74,7 +94,7 @@
             android:paddingRight="6dp"
             android:paddingLeft="22dp"
             android:paddingBottom="22dp"
-            android:src="@drawable/ic_mode_edit_black_24dp"
+            android:src="@drawable/ic_add_black_24dp"
             tools:ignore="ContentDescription" />
 
         <TextView

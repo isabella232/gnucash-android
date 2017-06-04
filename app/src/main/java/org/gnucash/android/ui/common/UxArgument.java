@@ -112,7 +112,9 @@ public final class UxArgument {
      */
     public static final String BOOK_UID = "book_uid";
 
-    public static final String AUTOREGISTER_PROVIDER_UID = "autoregister_provider_uid";
+    public static final String AUTOREGISTER_SELECTED_PROVIDER_UID = "autoregister_message_provider_uids";
+
+    public static final String AUTOREGISTER_KEYWORD = "autoregister_message_search_keyword";
 
     //prevent initialization of instances of this class
     private UxArgument(){

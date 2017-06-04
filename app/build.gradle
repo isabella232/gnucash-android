@@ -203,14 +203,14 @@ repositories{
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile(name:'owncloud_library', ext:'aar')
-    compile('com.android.support:support-v4:'       + androidSupportVersion,
-            'com.android.support:appcompat-v7:'     + androidSupportVersion,
-            'com.android.support:design:'           + androidSupportVersion,
-            'com.android.support:cardview-v7:'      + androidSupportVersion,
-            'com.android.support:preference-v7:'    + androidSupportVersion,
-            'com.android.support:recyclerview-v7:'  + androidSupportVersion,
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile(name: 'owncloud_library', ext: 'aar')
+    compile('com.android.support:support-v4:' + androidSupportVersion,
+            'com.android.support:appcompat-v7:' + androidSupportVersion,
+            'com.android.support:design:' + androidSupportVersion,
+            'com.android.support:cardview-v7:' + androidSupportVersion,
+            'com.android.support:preference-v7:' + androidSupportVersion,
+            'com.android.support:recyclerview-v7:' + androidSupportVersion,
             'com.code-troopers.betterpickers:library:3.1.0',
             'org.jraf:android-switch-backport:2.0.1@aar',
             'com.github.PhilJay:MPAndroidChart:v2.1.3',
@@ -226,46 +226,39 @@ dependencies {
             'com.github.tony19:named-regexp:0.2.4',
             'com.googlecode.libphonenumber:libphonenumber:8.4.2'
     )
-
     debugCompile 'com.facebook.stetho:stetho:1.4.2'
-
     compile 'com.jakewharton:butterknife:8.5.1'
     apt 'com.jakewharton:butterknife-compiler:8.5.1'
-
-    compile ('com.uservoice:uservoice-android-sdk:1.2.5') {
+    compile('com.uservoice:uservoice-android-sdk:1.2.5') {
         exclude module: 'commons-logging'
         exclude module: 'httpcore'
         exclude module: 'httpclient'
     }
-
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
-
-
     testCompile('org.robolectric:robolectric:3.1.2',
             'junit:junit:4.12',
             'joda-time:joda-time:2.9.4',
             'org.assertj:assertj-core:1.7.1'
     )
     testCompile 'org.robolectric:shadows-multidex:3.0'
-
-    androidTestCompile ('com.android.support:support-annotations:'  + androidSupportVersion,
-                        'com.android.support.test:runner:'          + androidSupportTestVersion,
-                        'com.android.support.test:rules:'           + androidSupportTestVersion,
-                        'com.android.support.test.espresso:espresso-core:'      + androidEspressoVersion,
-                        'com.android.support.test.espresso:espresso-intents:'   + androidEspressoVersion,
+    androidTestCompile('com.android.support:support-annotations:' + androidSupportVersion,
+            'com.android.support.test:runner:' + androidSupportTestVersion,
+            'com.android.support.test:rules:' + androidSupportTestVersion,
+            'com.android.support.test.espresso:espresso-core:' + androidEspressoVersion,
+            'com.android.support.test.espresso:espresso-intents:' + androidEspressoVersion,
             //the following are only added so that the app and test version both us the same versions
-                        'com.android.support:appcompat-v7:'     + androidSupportVersion,
-                        'com.android.support:design:'           + androidSupportVersion)
-    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:'   + androidEspressoVersion) {
+            'com.android.support:appcompat-v7:' + androidSupportVersion,
+            'com.android.support:design:' + androidSupportVersion)
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:' + androidEspressoVersion) {
         exclude group: 'com.android.support', module: 'support-v4'
         exclude module: 'recyclerview-v7'
     }
-
-    androidTestCompile('com.squareup.assertj:assertj-android:1.1.1'){
-        exclude group: 'com.android.support', module:'support-annotations'
+    androidTestCompile('com.squareup.assertj:assertj-android:1.1.1') {
+        exclude group: 'com.android.support', module: 'support-annotations'
     }
-
     androidTestCompile 'com.squareup.spoon:spoon-client:1.6.4'
+    compile project(':weka')
+    apt project(':weka')
 }

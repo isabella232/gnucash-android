@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ngewi Fet <ngewif@gmail.com>
+ * Copyright (c) 2017 Jin, Heonkyu <heonkyu.jin@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,37 @@
 
 package org.gnucash.android.ui.autoregister;
 
-import android.content.Context;
-import android.content.Intent;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.gnucash.android.R;
 import org.gnucash.android.db.DatabaseCursorLoader;
 import org.gnucash.android.db.adapter.AccountsDbAdapter;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
-import org.gnucash.android.model.AutoRegisterProvider;
+import org.gnucash.android.model.AutoRegister;
 import org.gnucash.android.ui.common.Refreshable;
-import org.gnucash.android.ui.common.UxArgument;
 import org.gnucash.android.ui.util.CursorRecyclerAdapter;
 import org.gnucash.android.ui.util.widget.EmptyRecyclerView;
 
@@ -60,7 +59,7 @@ import static org.gnucash.android.db.DatabaseSchema.AutoRegisterProviderEntry;
  *
  */
 public class ProvidersListFragment extends Fragment implements Refreshable,
-        LoaderManager.LoaderCallbacks<Cursor>, OnProviderSelectListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ProvidersListFragment.class.getSimpleName();
 
     private AutoRegisterProviderDbAdapter mProviderDbAdapter;
@@ -68,11 +67,14 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
 
     private ProviderRecyclerAdapter mProviderRecyclerAdapter;
 
-    @BindView(R.id.auto_register_recycler_view) EmptyRecyclerView mRecyclerView;
+    @BindView(R.id.autoregister_provider_recycler_view) EmptyRecyclerView mRecyclerView;
     @BindView(R.id.empty_view) TextView mEmptyTextView;
 
     public static ProvidersListFragment newInstance() {
         ProvidersListFragment fragment = new ProvidersListFragment();
+        fragment.mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
+        fragment.mAccountsDbAdapter = AccountsDbAdapter.getInstance();
+
         return fragment;
     }
 
@@ -101,13 +103,15 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
 
         mProviderRecyclerAdapter = new ProviderRecyclerAdapter(null);
         mRecyclerView.setAdapter(mProviderRecyclerAdapter);
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
-        mAccountsDbAdapter = AccountsDbAdapter.getInstance();
+        getActivity().findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogFragment dialogFragment = AddProviderDialogFragment.newInstance();
+                dialogFragment.setTargetFragment(ProvidersListFragment.this, Activity.RESULT_OK);
+                dialogFragment.show(getActivity().getSupportFragmentManager(), "add_provider_dialog");
+            }
+        });
     }
 
     @Override
@@ -139,7 +143,20 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "Creating the providers loader");
 
-        return new ProviderCursorLoader(getActivity());
+        return new DatabaseCursorLoader(getContext()) {
+            @Override
+            public Cursor loadInBackground() {
+                Cursor cursor = mProviderDbAdapter.fetchAllRecords(
+                        AutoRegisterProviderEntry.COLUMN_ACTIVE + " = ?",
+                        new String[]{"1"},
+                        null
+                );
+
+                if (cursor != null)
+                    registerContentObserver(cursor);
+                return cursor;
+            }
+        };
     }
 
     @Override
@@ -155,34 +172,30 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
         mProviderRecyclerAdapter.swapCursor(null);
     }
 
-    @Override
-    public void providerSelected(String providerUID) {
-        Log.d(LOG_TAG, "providerSelected(): uid = " + providerUID);
+    private void showDisableConfirmationDialog(final String providerUID) {
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.title_confirm_delete)
+                .setMessage(R.string.msg_disable_provider_confirm)
+                .setIcon(android.R.drawable.ic_delete)
+                .setPositiveButton(R.string.alert_dialog_ok_delete,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                mProviderDbAdapter.setInactive(providerUID);
+                                refresh();
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.alert_dialog_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                            }
+                        })
+                .create();
 
-        Intent i = new Intent(getContext(), MessageActivity.class);
-        i.putExtra(UxArgument.AUTOREGISTER_PROVIDER_UID, providerUID);
-
-        startActivity(i);
-    }
-
-    private static final class ProviderCursorLoader extends DatabaseCursorLoader {
-        ProviderCursorLoader(Context context) {
-            super(context);
-        }
-
-        @Override
-        public Cursor loadInBackground() {
-            AutoRegisterProviderDbAdapter adapter = AutoRegisterProviderDbAdapter.getInstance();
-            Cursor cursor = adapter.fetchAllRecords(
-                    AutoRegisterProviderEntry.COLUMN_ENABLED + " = ?",
-                    new String[] { "1" },
-                    null
-            );
-
-            if (cursor != null)
-                registerContentObserver(cursor);
-            return cursor;
-        }
+        dialog.show();
     }
 
     private class ProviderRecyclerAdapter extends CursorRecyclerAdapter<ProviderViewHolder> {
@@ -200,37 +213,40 @@ public class ProvidersListFragment extends Fragment implements Refreshable,
 
         @Override
         public void onBindViewHolderCursor(final ProviderViewHolder holder, final Cursor cursor) {
-            AutoRegisterProvider provider = mProviderDbAdapter.buildModelInstance(cursor);
+            final AutoRegister.Provider provider = mProviderDbAdapter.buildModelInstance(cursor);
 
-            holder.primaryText.setText(
-                    new StringBuilder()
-                        .append(provider.getName()).append(" > ")
-                        .append(mAccountsDbAdapter.getAccountName(provider.getAccountUID()))
-                        .toString()
+            @DrawableRes int iconId = getResources().getIdentifier(
+                    provider.getIconName(), "drawable", getContext().getPackageName());
+            holder.icon.setImageDrawable(getResources().getDrawable(iconId));
+
+            holder.primaryText.setText(provider.getName());
+            holder.secondaryText.setText(
+                    mAccountsDbAdapter.getFullyQualifiedAccountName(provider.getAccountUID())
             );
-            holder.secondaryText.setText(provider.getPhone());
 
-            final String uid = provider.getUID();
+            holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showDisableConfirmationDialog(provider.getUID());
+                }
+            });
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ProvidersListFragment.this.providerSelected(uid);
+                    MessageActivity.launchWithProvider(getContext(), provider.getUID());
                 }
             });
         }
     }
 
     class ProviderViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
+        @BindView(R.id.icon) ImageView icon;
         @BindView(R.id.primary_text) TextView primaryText;
         @BindView(R.id.secondary_text) TextView secondaryText;
         @BindView(R.id.account_balance) TextView accountBalance;
-        @BindView(R.id.create_transaction) ImageView createTransaction;
-        @BindView(R.id.provider_onoff) SwitchCompat providerOnoff;
+        @BindView(R.id.delete_btn) ImageView deleteButton;
         @BindView(R.id.options_menu) ImageView optionsMenu;
-        @BindView(R.id.provider_color_strip) View colorStripView;
-        @BindView(R.id.budget_indicator) ProgressBar budgetIndicator;
-        String providerId;
 
         public ProviderViewHolder(View itemView) {
             super(itemView);

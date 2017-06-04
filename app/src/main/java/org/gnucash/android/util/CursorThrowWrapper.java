@@ -3,8 +3,10 @@ package org.gnucash.android.util;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 
+import java.sql.Timestamp;
+
 /**
- * @author Jin, Heonkyu <heonkyu.jin@gmail.com> on 2017. 5. 19.
+ * @author Jin, Heonkyu <heonkyu.jin@gmail.com>
  */
 
 public class CursorThrowWrapper extends CursorWrapper {
@@ -42,5 +44,9 @@ public class CursorThrowWrapper extends CursorWrapper {
 
     public String getString(String columnName) {
         return getString(getColumnIndexOrThrow(columnName));
+    }
+
+    public Timestamp getTimestamp(String columnName) {
+        return new Timestamp(getLong(columnName));
     }
 }

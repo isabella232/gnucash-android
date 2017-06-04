@@ -37,10 +37,8 @@ import org.gnucash.android.db.adapter.AccountsDbAdapter;
 import org.gnucash.android.export.ExportFormat;
 import org.gnucash.android.export.ExportParams;
 import org.gnucash.android.export.Exporter;
-import org.gnucash.android.importer.AutoRegisterXmlHandler;
 import org.gnucash.android.importer.CommoditiesXmlHandler;
 import org.gnucash.android.model.AccountType;
-import org.gnucash.android.model.AutoRegisterProvider;
 import org.gnucash.android.model.BaseModel;
 import org.gnucash.android.model.Commodity;
 import org.gnucash.android.model.Money;
@@ -249,26 +247,6 @@ public class MigrationHelper {
         /** Create handler to handle XML Tags ( extends DefaultHandler ) */
 
         CommoditiesXmlHandler handler = new CommoditiesXmlHandler(db);
-
-        xr.setContentHandler(handler);
-        xr.parse(new InputSource(bos));
-    }
-
-    /**
-     * Imports auto-register providers into the database from XML resource file
-     */
-    static void importAutoRegisters(SQLiteDatabase db) throws SAXException, ParserConfigurationException, IOException {
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        SAXParser sp = spf.newSAXParser();
-        XMLReader xr = sp.getXMLReader();
-
-        InputStream autoRegisterInputStream = GnuCashApplication.getAppContext().getResources()
-                .openRawResource(R.raw.auto_register_configs);
-        BufferedInputStream bos = new BufferedInputStream(autoRegisterInputStream);
-
-        /** Create handler to handle XML Tags ( extends DefaultHandler ) */
-
-        AutoRegisterXmlHandler handler = new AutoRegisterXmlHandler(db);
 
         xr.setContentHandler(handler);
         xr.parse(new InputSource(bos));

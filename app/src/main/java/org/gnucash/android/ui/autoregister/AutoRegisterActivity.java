@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2012 - 2014 Ngewi Fet <ngewif@gmail.com>
- * Copyright (c) 2014 Yongxin Wang <fefe.wyx@gmail.com>
+ * Copyright (c) 2017 Jin, Heonkyu <heonkyu.jin@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +16,19 @@
 
 package org.gnucash.android.ui.autoregister;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,25 +38,23 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import org.gnucash.android.R;
+import org.gnucash.android.db.adapter.BooksDbAdapter;
 import org.gnucash.android.ui.common.BaseDrawerActivity;
+import org.gnucash.android.ui.util.FloatingActionButtonManager;
 import org.gnucash.android.util.PreferencesHelper;
-import org.joda.time.tz.Provider;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
  * Manages actions related to accounts, displaying, exporting and creating new accounts
  * The various actions are implemented as Fragments which are then added to this activity
- *
  */
 public class AutoRegisterActivity extends BaseDrawerActivity {
     /**
      * Logging tag
      */
     protected static final String LOG_TAG = AutoRegisterActivity.class.getSimpleName();
-
-    private static final int REQUEST_READ_SMS_PERMISSION = 1001;
-    private static final int REQUEST_RECEIVE_SMS_PERMISSION = 1002;
 
     /**
      * Number of pages to show
@@ -74,9 +67,9 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
     public static final int INDEX_PROVIDERS_FRAGMENT = 0;
 
     /**
-     * Index for the vendors tab
+     * Index for the keywords tab
      */
-    public static final int INDEX_MAPPINGS_FRAGMENT = 1;
+    public static final int INDEX_KEYWORDS_FRAGMENT = 1;
 
     /**
      * Map containing fragments for the different tabs
@@ -87,16 +80,22 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
      * ViewPager which manages the different tabs
      */
     @BindView(R.id.pager) ViewPager mViewPager;
-    @BindView(R.id.fab_create_account) FloatingActionButton mFloatingActionButton;
+    @BindView(R.id.fab) FloatingActionButton mFloatingActionButton;
+
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout mCoordinatorLayout;
 
     private AutoRegisterViewPagerAdapter mPagerAdapter;
+
+    private FloatingActionButtonManager mFABManager;
+
+    private String mBookUID;
 
     /**
      * Adapter for managing the sub-account and transaction fragment pages in the accounts view
      */
     private class AutoRegisterViewPagerAdapter extends FragmentPagerAdapter {
 
-        public AutoRegisterViewPagerAdapter(FragmentManager fm){
+        public AutoRegisterViewPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -109,8 +108,8 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
                         currentFragment = ProvidersListFragment.newInstance();
                         break;
 
-                    case INDEX_MAPPINGS_FRAGMENT:
-                        currentFragment = MappingsListFragment.newInstance();
+                    case INDEX_KEYWORDS_FRAGMENT:
+                        currentFragment = KeywordsListFragment.newInstance();
                         break;
                 }
                 mFragmentPageReferenceMap.put(i, currentFragment);
@@ -126,11 +125,11 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position){
-                case INDEX_MAPPINGS_FRAGMENT:
-                    return getString(R.string.title_auto_register_mappings);
+            switch (position) {
+                case INDEX_KEYWORDS_FRAGMENT:
+                    return getString(R.string.title_autoregister_keywords);
             }
-            return getString(R.string.title_auto_register_providers);
+            return getString(R.string.title_autoregister_providers);
         }
 
         @Override
@@ -146,35 +145,27 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
 
     @Override
     public int getTitleRes() {
-        return R.string.title_auto_register;
+        return R.string.title_autoregister;
     }
 
     @Override
-	public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.title_auto_register_providers));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.title_auto_register_mappings));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.title_autoregister_providers));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.title_autoregister_keywords));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        if (PreferencesHelper.hasAutoRegisterRun()) {
-            tabLayout.setVisibility(View.VISIBLE);
-        } else {
-            tabLayout.setVisibility(View.GONE);
-        }
-
-        boolean enabled = PreferencesHelper.isAutoRegisterEnabled();
-        Log.d(LOG_TAG, "enabled = " + enabled);
 
         mPagerAdapter = new AutoRegisterViewPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
+                mFABManager.revertToInitialState();
             }
 
             @Override
@@ -188,104 +179,57 @@ public class AutoRegisterActivity extends BaseDrawerActivity {
             }
         });
 
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 int index = mViewPager.getCurrentItem();
-                if (index == INDEX_PROVIDERS_FRAGMENT) {
-                    DialogFragment dialogFragment = AddProviderDialogFragment.newInstance();
-                    dialogFragment.setTargetFragment(mPagerAdapter.getItem(index), Activity.RESULT_OK);
-                    dialogFragment.show(getSupportFragmentManager(), "add_provider_dialog");
+                Fragment sourceFragment = mPagerAdapter.getItem(index);
+                DialogFragment dialogFragment;
+                switch (index) {
+                    case INDEX_PROVIDERS_FRAGMENT:
+                        dialogFragment = AddProviderDialogFragment.newInstance();
+                        dialogFragment.setTargetFragment(sourceFragment, Activity.RESULT_OK);
+                        dialogFragment.show(getSupportFragmentManager(), "add_provider_dialog");
+                        break;
+
+                    case INDEX_KEYWORDS_FRAGMENT:
+                        dialogFragment = AddKeywordDialogFragment.newInstance();
+                        dialogFragment.setTargetFragment(sourceFragment, Activity.RESULT_OK);
+                        dialogFragment.show(getSupportFragmentManager(), "add_keyword_dialog");
+                        break;
                 }
             }
-        });
-        mFloatingActionButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
-	}
+        };
+        mFABManager = new FloatingActionButtonManager(
+                mFloatingActionButton, R.drawable.ic_add_white_48dp, listener
+        );
+    }
 
     @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.autoregister_actions, menu);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.autoregister_actions, menu);
 
         SwitchCompat onOffSwitch = (SwitchCompat) menu.getItem(0).getActionView()
                 .findViewById(R.id.actionbar_switch);
-        onOffSwitch.setChecked(PreferencesHelper.isAutoRegisterEnabled());
+        onOffSwitch.setChecked(PreferencesHelper.isAutoRegisterEnabled(mBookUID));
         onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    setEnabled();
-                } else {
-                    setDisabled();
-                }
+                setEnabled(b);
             }
         });
         return true;
-	}
-	
-	private void setEnabled() {
-        Log.d(LOG_TAG, "setEnabled()");
-
-        if (!PreferencesHelper.hasAutoRegisterRun()) {
-            PreferencesHelper.setAutoRegisterHasRun(true);
-        }
-
-        requestSMSPermission(Manifest.permission.READ_SMS, REQUEST_READ_SMS_PERMISSION);
-        requestSMSPermission(Manifest.permission.RECEIVE_SMS, REQUEST_RECEIVE_SMS_PERMISSION);
-
-        PreferencesHelper.setAutoRegisterEnabled(true);
     }
 
-    private void setDisabled() {
-        Log.d(LOG_TAG, "setDisabled()");
-        PreferencesHelper.setAutoRegisterEnabled(false);
+    protected FloatingActionButtonManager getFloatingActionButtomManager() {
+        return mFABManager;
     }
 
-	private void requestSMSPermission(String permission, int requestCode) {
-        if (ContextCompat.checkSelfPermission(this, permission) !=
-                PackageManager.PERMISSION_GRANTED) {
+    private void setEnabled(boolean enabled) {
+        PreferencesHelper.setAutoRegisterEnabled(mBookUID, enabled);
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    permission)) {
-
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
-            }
-
-        };
+        int messageId = enabled ? R.string.toast_autoregister_enabled : R.string.toast_autoregister_disabled;
+        Toast.makeText(this, getString(messageId), Toast.LENGTH_SHORT).show();
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(LOG_TAG, "onRequestPermissionsResult: requestCode = " + requestCode);
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            int messageId = -1;
-            switch (requestCode) {
-                case REQUEST_READ_SMS_PERMISSION:
-                    messageId = R.string.msg_read_sms_granted;
-                    break;
-                case REQUEST_RECEIVE_SMS_PERMISSION:
-                    messageId = R.string.msg_receive_sms_granted;
-                    break;
-            }
-
-            if (messageId > 0) {
-                Toast.makeText(this, getString(messageId), Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    /**
-	 * Removes the flag indicating that the app is being run for the first time.
-	 * This is called every time the app is started because the next time won't be the first time
-	 */
-/*
-	public static void removeFirstRunFlag(){
-        Context context = GnuCashApplication.getAppContext();
-		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		editor.putBoolean(context.getString(R.string.key_first_run), false);
-		editor.commit();
-	}
-*/
-
 }

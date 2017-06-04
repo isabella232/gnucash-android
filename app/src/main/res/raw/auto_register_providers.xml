@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<autoregister version="201705_03">
+    <components>
+        <component name="cardno" value="[0-9*]{4}" />
+        <component name="holder" value="[^ 님]+" />
+        <component name="instalment" value="[^ ]+" />
+        <component name="month" value="[0-9]+" />
+        <component name="day" value="[0-9]+" />
+        <component name="hour" value="[0-9]+" />
+        <component name="minute" value="[0-9]+" />
+        <component name="memo" value=".+" />
+        <component name="amount" value="[0-9,.]+" />
+        <component name="accum" value="[0-9,.]+" />
+        <component name="approvalno" value="[0-9]+" />
+        <component name="currency" value="[A-Z]{3}" />
+    </components>
+    <providers>
+        <provider name="하나카드" icon="icon_hanacard">
+            <phone>1800-1111</phone>
+            <pattern>
+                하나({cardno}) {holder}님 {instalment} {amount}원 {month}/{day} {hour}:{minute} 누적 {accum}원 {memo}
+            </pattern>
+            <pattern>
+                하나카드({cardno}) {holder}님 {instalment} {amount}원 {month}/{day} {hour}:{minute} 누적 {accum}원 {memo}
+            </pattern>
+            <pattern>
+                하나카드({cardno}) {holder}님 {instalment} {amount}원/{memo} {month}/{day} {hour}:{minute}
+            </pattern>
+            <pattern>
+                하나카드({cardno}){holder}님 {month}/{day} {hour}:{minute} 해외승인 {currency}{amount} {memo} {approvalno}
+            </pattern>
+            <pattern>
+                하나카드({cardno}){holder}님 {month}/{day} {hour}:{minute} 해외승인 {currency}{amount} {memo}
+            </pattern>
+        </provider>
+        <provider name="신한카드" icon="icon_shinhancard">
+            <phone>1544-7200</phone>
+            <pattern>
+                신한카드승인 {holder}({cardno}) {month}/{day} {hour}:{minute} ({instalment}){amount}원 {memo} 누적{accum}원
+            </pattern>
+        </provider>
+    </providers>
+</autoregister>

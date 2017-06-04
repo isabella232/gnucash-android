@@ -34,4 +34,5 @@
     <dimen name="passcode_btn_margin">10dp</dimen>
     <dimen name="elevation_default">10dp</dimen>
 
+    <dimen name="icon_size">40dp</dimen>
 </resources>

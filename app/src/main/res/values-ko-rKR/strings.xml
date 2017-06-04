@@ -39,7 +39,7 @@
   <string name="title_accounts">계정</string>
   <string name="title_transactions">거래</string>
   <string name="menu_delete">삭제</string>
-  <string name="label_no_auto_registers">자동등록 내역이 없습니다.</string>
+  <string name="label_no_autoregister_messages">자동등록 내역이 없습니다.</string>
   <string name="alert_dialog_ok_delete">삭제</string>
   <string name="alert_dialog_cancel">취소</string>
   <string name="toast_account_deleted">계정이 삭제되었습니다.</string>
@@ -444,5 +444,5 @@
   <string name="label_select_destination_after_export">Select the destination after export is complete</string>
   <string name="label_dropbox_export_destination">Export to \'/Apps/GnuCash Android/\' folder on Dropbox</string>
   <string name="title_section_preferences">환경설정</string>
-  <string name="title_auto_register">Auto Register</string>
+  <string name="title_autoregister">Auto Register</string>
 </resources>

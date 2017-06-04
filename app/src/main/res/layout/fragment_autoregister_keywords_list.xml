@@ -16,10 +16,18 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/fragment_account_list"
+                android:id="@+id/fragment_autoregister_keyword_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+
+    <org.gnucash.android.ui.util.widget.EmptyRecyclerView
+        android:id="@+id/autoregister_vendor_recycler_view"
+        android:scrollbars="vertical"
+        android:paddingBottom="@dimen/card_min_height"
+        android:clipToPadding="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:id="@+id/empty_view"
@@ -30,6 +38,5 @@
         android:layout_gravity="center"
         android:visibility="gone"
         android:textColor="@color/theme_accent"
-        android:text="@string/label_enable_autoregister" />
-
+        android:text="@string/label_no_autoregister_keywords" />
 </RelativeLayout>

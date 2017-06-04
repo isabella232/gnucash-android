@@ -275,15 +275,47 @@ public class DatabaseSchema {
         public static final String INDEX_UID = "recurrence_uid_index";
     }
 
+    public static abstract class AutoRegisterEntry implements CommonColumns {
+        public static final String TABLE_NAME             = "autoregisters";
+
+        public static final String COLUMN_INBOX_URI       = "inbox_uri";
+        public static final String COLUMN_FLAG            = "flag";
+        public static final String COLUMN_TRANSACTION_UID = "transaction_uid";
+
+        public static final String INDEX_UID = "autoregister_uid_index";
+    }
+
+    public static abstract class AutoRegisterInboxEntry implements CommonColumns {
+        public static final String TABLE_NAME             = "autoregister_inbox";
+
+        public static final String COLUMN_MESSAGE_TYPE      = "message_type";
+        public static final String COLUMN_MESSAGE_ID        = "message_id";
+        public static final String COLUMN_MESSAGE_TIMESTAMP = "message_timestamp";
+        public static final String COLUMN_MESSAGE_ADDRESS   = "message_address";
+        public static final String COLUMN_MESSAGE_BODY      = "message_body";
+        public static final String COLUMN_PROVIDER_UID      = "provider_uid";
+        public static final String COLUMN_IS_PARSED         = "is_parsed";
+        public static final String COLUMN_CURRENCY          = "currency";
+        public static final String COLUMN_VALUE_NUM         = "value_num";
+        public static final String COLUMN_VALUE_DENOM       = "value_denom";
+        public static final String COLUMN_MEMO              = "memo";
+        public static final String COLUMN_IS_COMPLETED      = "is_completed";
+        public static final String COLUMN_TRANSACTION_UID   = "transaction_uid";
+
+        public static final String INDEX_UID = "autoregister_inbox_uid_index";
+        public static final String INDEX_MESSAGE_TIMESTAMP = "autoregister_inbox_message_timestamp_index";
+    }
+
     public static abstract class AutoRegisterProviderEntry implements CommonColumns {
         public static final String TABLE_NAME           = "autoregister_providers";
 
         public static final String COLUMN_NAME          = "name";
         public static final String COLUMN_PHONE         = "phone";
-        public static final String COLUMN_VERSION       = "version";
-        public static final String COLUMN_PATTERN       = "pattern";
+        public static final String COLUMN_PATTERNS      = "patterns";
+        public static final String COLUMN_GLOBS         = "globs";
         public static final String COLUMN_ACCOUNT_UID   = "account_uid";
-        public static final String COLUMN_ENABLED       = "is_enabled";
+        public static final String COLUMN_ICON_NAME     = "icon_name";
+        public static final String COLUMN_ACTIVE        = "is_active";
         public static final String COLUMN_REG_COUNT     = "reg_count";
         public static final String COLUMN_IGNORE_COUNT  = "ignore_count";
         public static final String COLUMN_LAST_SYNC     = "last_sync";
@@ -291,15 +323,13 @@ public class DatabaseSchema {
         public static final String INDEX_UID = "autoregister_provider_uid_index";
     }
 
-    public static abstract class AutoRegisterMappingEntry implements CommonColumns {
-        public static final String TABLE_NAME           = "autoregister_mappings";
+    public static abstract class AutoRegisterKeywordEntry implements CommonColumns {
+        public static final String TABLE_NAME           = "autoregister_keywords";
 
-        public static final String COLUMN_MULTIPLIER    = "recurrence_mult";
-        public static final String COLUMN_PERIOD_TYPE   = "recurrence_period_type";
-        public static final String COLUMN_PERIOD_START  = "recurrence_period_start";
-        public static final String COLUMN_PERIOD_END    = "recurrence_period_end";
-        public static final String COLUMN_BYDAY         = "recurrence_byday";
+        public static final String COLUMN_KEYWORD       = "keyword";
+        public static final String COLUMN_PRIORITY      = "priority";
+        public static final String COLUMN_ACCOUNT_UID   = "account_uid";
 
-        public static final String INDEX_UID = "recurrence_uid_index";
+        public static final String INDEX_UID = "autoregister_keyword_uid_index";
     }
 }

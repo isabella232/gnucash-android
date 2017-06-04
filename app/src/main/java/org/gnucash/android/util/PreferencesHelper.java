@@ -46,8 +46,8 @@ public final class PreferencesHelper {
     public static final String PREFERENCE_LAST_EXPORT_TIME_KEY = "last_export_time";
 
     private static final String AUTOREGISTER_PREF = "autoregister";
-    private static final String AUTOREGISTER_HAS_RUN_KEY = "has_run";
-    private static final String AUTOREGISTER_ENABLED_KEY = "enabled";
+    private static final String AUTOREGISTER_VERSION_KEY = "autoregister_provider_version";
+    private static final String AUTOREGISTER_ENABLED_KEY = "autoregister_enabled";
 
     /**
      * Set the last export time in UTC time zone of the currently active Book in the application.
@@ -105,29 +105,35 @@ public final class PreferencesHelper {
         return TimestampHelper.getTimestampFromUtcString(utcString);
     }
 
-    public static boolean hasAutoRegisterRun() {
+    /**
+     * Get the current version of auto-register configuration.
+     *
+     * @param bookUID Current book GUID
+     * @return
+     */
+    public static String getAutoRegisterVersion(String bookUID) {
         return GnuCashApplication.getAppContext()
-                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
-                .getBoolean(AUTOREGISTER_HAS_RUN_KEY, false);
+                .getSharedPreferences(bookUID, Context.MODE_PRIVATE)
+                .getString(AUTOREGISTER_VERSION_KEY, "");
     }
 
-    public static void setAutoRegisterHasRun(boolean hasRun) {
+    public static void setAutoRegisterVersion(String bookUID, String version) {
         SharedPreferences.Editor editor = GnuCashApplication.getAppContext()
-                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .getSharedPreferences(bookUID, Context.MODE_PRIVATE)
                 .edit();
-        editor.putBoolean(AUTOREGISTER_HAS_RUN_KEY, hasRun);
+        editor.putString(AUTOREGISTER_VERSION_KEY, version);
         editor.apply();
     }
 
-    public static boolean isAutoRegisterEnabled() {
+    public static boolean isAutoRegisterEnabled(String bookUID) {
         return GnuCashApplication.getAppContext()
-                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .getSharedPreferences(bookUID, Context.MODE_PRIVATE)
                 .getBoolean(AUTOREGISTER_ENABLED_KEY, false);
     }
 
-    public static void setAutoRegisterEnabled(boolean enabled) {
+    public static void setAutoRegisterEnabled(String bookUID, boolean enabled) {
         SharedPreferences.Editor editor = GnuCashApplication.getAppContext()
-                .getSharedPreferences(AUTOREGISTER_PREF, Context.MODE_PRIVATE)
+                .getSharedPreferences(bookUID, Context.MODE_PRIVATE)
                 .edit();
         editor.putBoolean(AUTOREGISTER_ENABLED_KEY, enabled);
         editor.apply();
