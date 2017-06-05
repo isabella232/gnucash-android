@@ -30,10 +30,13 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import org.gnucash.android.R;
-import org.gnucash.android.app.GnuCashApplication;
 import org.gnucash.android.db.adapter.AutoRegisterProviderDbAdapter;
 import org.gnucash.android.db.adapter.BooksDbAdapter;
 import org.gnucash.android.importer.AutoRegisterProviderImporter;
@@ -60,9 +63,16 @@ public class MessageActivity extends BaseDrawerActivity {
     private SparseArray<Fragment> mFragmentPageReferenceMap = new SparseArray<>();
 
     /**
+     * Toolbar with spinner
+     */
+    @BindView(R.id.toolbar_spinner)
+    Spinner mToolbarSpinner;
+
+    /**
      * ViewPager which manages the different tabs
      */
-    @BindView(R.id.pager) ViewPager mViewPager;
+    @BindView(R.id.pager)
+    ViewPager mViewPager;
 
     private AutoRegisterViewPagerAdapter mPagerAdapter;
 
@@ -144,6 +154,25 @@ public class MessageActivity extends BaseDrawerActivity {
         requestSMSPermissions(currentBookUID);
         updateProviderConfiguration(currentBookUID);
 
+        final ArrayAdapter spinnerAdapter = new ArrayAdapter<>(
+                getSupportActionBar().getThemedContext(),
+                R.layout.account_spinner_item,
+                new String[] { "Test1", "Test2" });
+        spinnerAdapter.setDropDownViewResource(R.layout.account_spinner_dropdown_item);
+
+        mToolbarSpinner.setAdapter(spinnerAdapter);
+        mToolbarSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d(LOG_TAG, "onItemClick(): " + spinnerAdapter.getItem(i));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         for (MessageListFragment.Mode m : MessageListFragment.Mode.values()) {
             mTabLayout.addTab(mTabLayout.newTab().setText(m.mTitleRes));
         }
@@ -185,7 +214,7 @@ public class MessageActivity extends BaseDrawerActivity {
     /**
      * Requests SMS permission.
      *
-     * @param currentBookUID
+     * @param currentBookUID UID of current book
      */
     private void requestSMSPermissions(String currentBookUID) {
         if (PreferencesHelper.isAutoRegisterEnabled(currentBookUID)) return;
@@ -198,7 +227,7 @@ public class MessageActivity extends BaseDrawerActivity {
     /**
      * Load provider configuration into database
      *
-     * @param currentBookUID
+     * @param currentBookUID UID of current book
      */
     private void updateProviderConfiguration(String currentBookUID) {
         AutoRegisterProviderImporter providerImporter = new AutoRegisterProviderImporter(

@@ -35,7 +35,7 @@ limitations under the License.
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/toolbar"/>
+            <include layout="@layout/toolbar_with_spinner"/>
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tab_layout"

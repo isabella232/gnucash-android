@@ -27,6 +27,7 @@ import org.gnucash.android.db.DatabaseSchema.AutoRegisterInboxEntry;
 import org.gnucash.android.model.AutoRegister;
 import org.gnucash.android.model.Money;
 import org.gnucash.android.util.CursorThrowWrapper;
+import org.gnucash.android.util.QuerySelectionBuilder;
 import org.gnucash.android.util.TimestampHelper;
 
 import java.sql.Timestamp;
@@ -151,14 +152,16 @@ public class AutoRegisterInboxDbAdapter extends DatabaseAdapter<AutoRegister.Inb
         return stmt;
     }
 
-    public Cursor fetchRecords(AutoRegister.Provider provider, AutoRegister.Keyword keyword) {
-        StringBuilder selection = new StringBuilder();
-        List<String> selectionBuf = new ArrayList<>();
-        List<String> selectionArgBuf = new ArrayList<>();
+    public Cursor fetchRecords(boolean parsed, AutoRegister.Provider provider, AutoRegister.Keyword keyword) {
+        QuerySelectionBuilder builder = new QuerySelectionBuilder();
+
+        // filter by parsed
+        builder.append(AutoRegisterInboxEntry.COLUMN_IS_PARSED + " = ?", parsed ? "1" : "0");
 
         // filter by selected provider
         if (provider != null) {
-            selection.append(AutoRegisterInboxEntry.COLUMN_PROVIDER_UID).append(" = ?");
+            builder.append(AutoRegisterInboxEntry.COLUMN_PROVIDER_UID + " = ?",
+                    provider.getUID());
 /*
             for (String glob : provider.getGlobs()) {
                 selectionBuf.add(Telephony.Sms.Inbox.BODY + " GLOB ?");
@@ -168,22 +171,17 @@ public class AutoRegisterInboxDbAdapter extends DatabaseAdapter<AutoRegister.Inb
                     .append(TextUtils.join(" OR ", selectionBuf))
                     .append(")");
 */
-            selectionArgBuf.add(provider.getUID());
         }
 
         // filter by selected keyword
         if (keyword != null) {
-            selection.append(" AND ").append(AutoRegisterInboxEntry.COLUMN_MESSAGE_BODY)
-                    .append(" LIKE ?");
-            selectionArgBuf.add("%" + keyword.getKeyword() + "%");
+            builder.append(AutoRegisterInboxEntry.COLUMN_MESSAGE_BODY + " LIKE ?",
+                    "%" + keyword.getKeyword() + "%");
         }
 
-        Log.d(LOG_TAG, "selection = " + selection);
-        Log.d(LOG_TAG, "args = " + selectionArgBuf);
-
         return fetchAllRecords(
-                selection.toString(),
-                selectionArgBuf.toArray(new String[] {}),
+                builder.getSelection(),
+                builder.getSelectionArgs(),
                 AutoRegisterInboxEntry.COLUMN_MESSAGE_TIMESTAMP + " DESC"
         );
     }

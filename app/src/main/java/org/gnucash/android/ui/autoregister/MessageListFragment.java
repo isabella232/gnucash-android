@@ -40,7 +40,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +74,7 @@ import butterknife.ButterKnife;
  */
 public class MessageListFragment extends Fragment implements Refreshable,
         LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String LOG_TAG = MessageListFragment.class.getSimpleName();
 
     /**
@@ -99,16 +102,6 @@ public class MessageListFragment extends Fragment implements Refreshable,
      */
     private AutoRegisterInboxDbAdapter mInboxDbAdapter;
 
-    /**
-     * Provider database adapter
-     */
-    private AutoRegisterProviderDbAdapter mProviderDbAdapter;
-
-    /**
-     * Keyword database adapter
-     */
-    private AutoRegisterKeywordDbAdapter mKeywordDbAdapter;
-
     private AutoRegister.Provider mCurrentProvider;
     private AutoRegister.Keyword mCurrentKeyword;
 
@@ -131,19 +124,19 @@ public class MessageListFragment extends Fragment implements Refreshable,
         super.onCreate(savedInstanceState);
 
         mInboxDbAdapter = AutoRegisterInboxDbAdapter.getInstance();
-        mProviderDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
-        mKeywordDbAdapter = AutoRegisterKeywordDbAdapter.getInstance();
 
         Bundle arguments = getArguments();
         if (arguments != null) {
             String currentProviderUID = arguments.getString(UxArgument.AUTOREGISTER_SELECTED_PROVIDER_UID);
             if (currentProviderUID != null) {
-                mCurrentProvider = mProviderDbAdapter.getRecord(currentProviderUID);
+                AutoRegisterProviderDbAdapter providerDbAdapter = AutoRegisterProviderDbAdapter.getInstance();
+                mCurrentProvider = providerDbAdapter.getRecord(currentProviderUID);
             }
 
             String currentKeyword = arguments.getString(UxArgument.AUTOREGISTER_KEYWORD);
             if (currentKeyword != null) {
-                mCurrentKeyword = mKeywordDbAdapter.findFirstMatchingKeyword(currentKeyword);
+                AutoRegisterKeywordDbAdapter keywordDbAdapter = AutoRegisterKeywordDbAdapter.getInstance();
+                mCurrentKeyword = keywordDbAdapter.findFirstMatchingKeyword(currentKeyword);
             }
         }
     }
@@ -224,7 +217,7 @@ public class MessageListFragment extends Fragment implements Refreshable,
             @Override
             public Cursor loadInBackground() {
                 Cursor cursor = mInboxDbAdapter.fetchRecords(
-                        mCurrentProvider, mCurrentKeyword);
+                        false, mCurrentProvider, mCurrentKeyword);
 
                 if (cursor != null)
                     registerContentObserver(cursor);
@@ -262,6 +255,9 @@ public class MessageListFragment extends Fragment implements Refreshable,
         dialogFragment.show(getActivity().getSupportFragmentManager(), "add_keyword_dialog");
     }
 
+    /**
+     * Recycler adapter for messages
+     */
     private class MessageRecyclerAdapter extends CursorRecyclerAdapter<MessageViewHolder> {
         public MessageRecyclerAdapter(Cursor cursor) {
             super(cursor);
@@ -291,16 +287,17 @@ public class MessageListFragment extends Fragment implements Refreshable,
                     message.getProvider().getIconName(), "drawable", getContext().getPackageName());
             holder.icon.setImageDrawable(getResources().getDrawable(iconId));
 
+            holder.smallLabel.setText(inbox.getCardNo());
             if (message.isParsed()) {
-                holder.smallLabel.setText(inbox.getCardNo());
                 holder.primaryText.setText(inbox.getMemo());
                 holder.secondaryText.setText(inbox.hasKeyword() ?
                         inbox.getKeyword().getAccountName() :
                         "");
 
-                if (inbox.getValue() != null) {
-                    TransactionsActivity.displayBalance(holder.amount, inbox.getValue());
-                }
+                holder.secondaryText.setVisibility(View.GONE);
+                holder.secondaryTextSpinner.setVisibility(View.VISIBLE);
+
+                TransactionsActivity.displayBalance(holder.amount, inbox.getValue());
 
                 holder.createTransactionButton.setVisibility(
                         inbox.hasKeyword() ? View.VISIBLE : View.INVISIBLE
@@ -309,9 +306,11 @@ public class MessageListFragment extends Fragment implements Refreshable,
                         inbox.getTimeMillis()
                 ));
             } else {
-                holder.smallLabel.setText("");
                 holder.primaryText.setText(R.string.label_unrecognizable_message);
                 holder.secondaryText.setText(message.getBody());
+
+                holder.secondaryText.setVisibility(View.VISIBLE);
+                holder.secondaryTextSpinner.setVisibility(View.GONE);
 
                 TransactionsActivity.displayBalance(holder.amount, Money.getZeroInstance());
 
@@ -341,6 +340,8 @@ public class MessageListFragment extends Fragment implements Refreshable,
         TextView primaryText;
         @BindView(R.id.secondary_text)
         TextView secondaryText;
+        @BindView(R.id.secondary_text_spinner)
+        Spinner secondaryTextSpinner;
         @BindView(R.id.message_amount)
         TextView amount;
         @BindView(R.id.message_date)
@@ -350,7 +351,7 @@ public class MessageListFragment extends Fragment implements Refreshable,
         @BindView(R.id.options_menu)
         ImageView optionsMenu;
 
-        public MessageViewHolder(View itemView) {
+        MessageViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 

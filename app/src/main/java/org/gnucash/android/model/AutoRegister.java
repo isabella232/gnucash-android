@@ -165,7 +165,7 @@ public class AutoRegister extends BaseModel {
         }
 
         protected String getBodyPart(String key) {
-            return mBodyParts.get(key);
+            return mBodyParts != null ? mBodyParts.get(key) : null;
         }
 
         @Override
